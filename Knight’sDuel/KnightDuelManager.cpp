@@ -26,10 +26,8 @@ void GameManager::DestroyEnemy()
 
 Enemy* GameManager::CreateAldric()
 {
-    // 가정: HP는 기존 알드릭 범위 유지(170~200).
-    // 요청대로 ATK=17~20, DEF=7~10 로 변경.
     const char* name = "불멸의 기사 알드릭";
-    int hp = RandRange(170, 200);
+    int hp = RandRange(80, 100);
     int st = 100;
     int atk = RandRange(17, 20);
     int def = RandRange(7, 10);
