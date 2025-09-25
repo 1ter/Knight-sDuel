@@ -16,14 +16,13 @@ void Actor::MaxVital()             // HP, ST 최대/최소 제한
     {
         HP = MaxHP;
     }
-
     if (ST > MaxST)
     {
         ST = MaxST;
     }
 }
 
-void Actor::RegenST()              // 턴 시작 ST +5, 최대치 제한
+void Actor::RegenST()                 // 턴 시작시 ST +5, 최대치 제한
 {
     ST += 5;
     MaxVital();
@@ -34,9 +33,10 @@ bool Actor::CheckST(int Cost) const   // ST 확인
     return ST >= Cost;
 }
 
-void Actor::ConsumeST(int Cost)         // ST 소모
+void Actor::ConsumeST(int Cost)       // ST 소모
 {
     ST -= Cost;
+
     if (ST < 0)
     {
         ST = 0;
@@ -44,7 +44,7 @@ void Actor::ConsumeST(int Cost)         // ST 소모
 }
 
 // 전투 처리
-void Actor::TakeDamage(int Damage)     // 피해 적용
+void Actor::TakeDamage(int Damage)     // 받은 피해 적용
 {
     if (Damage <= 0)
     {
@@ -111,7 +111,7 @@ void Actor::RefreshDebuff(const Debuff& NewDebuff)
     Current.Duration = std::max(Current.Duration, NewDebuff.Duration);
 }
 
-void Actor::TickDebuff()                // 턴마다 디버프 처리
+void Actor::TickDebuff()            // 턴마다 디버프 처리
 {
     if (ActiveDebuff.empty())
     {
@@ -171,5 +171,5 @@ void Actor::TickDebuff()                // 턴마다 디버프 처리
         ActiveDebuff.push_back(D);
     }
 
-    MaxVital();
+    MaxVital();  
 }

@@ -30,7 +30,7 @@ public:
     }
     virtual ~Actor() {}  //부모 소멸자(상속 대비)
 
-    virtual void TakeTurn() = 0;
+    virtual void TakeTurn() = 0;    // 턴 명시
 
     // 리소스 관리
     void MaxVital();                // HP, ST 최대치 제한
@@ -54,16 +54,16 @@ public:
     const std::string& GetName() const { return Name; }
 
 protected:
-    std::string Name;
+    std::string Name; // 이름
 
-    int HP = 100;
+    int HP = 100;     // 체력
     int MaxHP = 100;
-
-    int ST = 100;
+     
+    int ST = 100;     // 스태미나
     int MaxST = 100;
 
-    int ATK = 0;
-    int DEF = 0;
+    int ATK = 0;      // 공격
+    int DEF = 0;      // 방어
 
     std::vector<Debuff> ActiveDebuff;
 };
