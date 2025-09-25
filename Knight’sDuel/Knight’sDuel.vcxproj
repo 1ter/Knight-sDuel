@@ -128,7 +128,6 @@
     <ClInclude Include="Enemy.h" />
     <ClInclude Include="KnightDuelManager.h" />
     <ClInclude Include="Player.h" />
-    <ClInclude Include="헤더.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Actor.cpp" />
