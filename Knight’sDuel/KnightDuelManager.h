@@ -62,40 +62,23 @@ Actor:
   - HP: 100
   - ST: 100
     - 턴 시작 : ST +5
-    - 소모    : 일반공격 -5 / 강한공격 -25 / 회피 -30 / 무기막기 추가 -10
+    - 소모    : 일반공격 -5 / 강한공격 -25 / 회피 -30 / 무기막기 추가 -10 // 가드 -0
     - ST 부족 : 자연스럽게 가드만 할수 밖에 없음
 
   - 능력치(전투 시작 시 랜덤):
     - ATK: 17 ~ 20
     - DEF: 7 ~ 10
 
-적:
-   - 성향: 랜덤 생성
-       공격형: 일반 60%, 가드 20%, 강공 20%
-       방어형: 가드 60%, 일반 20%, 강공 20%
-       균형형: 일반 40%, 가드 40%, 강공 20%
-   - 전조(텔레그래프): 대화를 통한 심리전 강화 
-       예시) [칼집에서 검을 뽑는 소리가 들립니다.] 
-              공격형 성향 (대사 뜰시 공격 확률 30% + 일반공격 확률 60% = 공격 확률 90%) 
+적:  불멸의 기사 알드릭
+  - 성향: 랜덤 생성
+       공격형: 일반 60%, 강공 20%, 가드 20%
+       방어형: 일반 20%, 강공 20%, 가드 60%
+       균형형: 일반 40%, 강공 20%, 가드 40%
+    전조(30%): 대사를 통한 공격확률 증가 (칼집에서 검을 뽑는 소리가 들립니다.) 
+       공격형: 일반 70%, 강공 20%, 가드 10%
+       방어형: 일반 30%, 강공 20%, 가드 50%
+       균형형: 일반 50%, 강공 20%, 가드 30%
 
-   - 1라운드 기사: 견습 기사 로웰
-      HP : 80 ~ 100,  ATK : 10 ~ 13, DEF : 3 ~ 6
-     2라운드 기사: 강철의 기사 드레이크
-      HP : 120 ~ 140, ATK : 14 ~ 17, DEF : 6 ~ 9
-     3라운드 기사: 불멸의 기사 알드릭
-      HP : 170 ~ 200, ATK : 18 ~ 22, DEF : 9 ~ 12
-
-라운드:
-   - 총 3라운드
-      * 라운드 클리어시 보상 포인트 지급
-          1라운드 클리어 → 3포인트
-          2라운드 클리어 → 5포인트
-          3라운드 클리어 → 7포인트
-      * 스탯 분배 시스템 (포인트 1당)
-          HP  + 20
-          ATK + 5
-          DEF + 5
-          ST  + 20
  
 행동:
   - 공격(Attack): 상단(내려치기), 중단(찌르기), 하단(쓸어베기), 강공(상/중/하)
@@ -139,8 +122,33 @@ Actor:
    피해 최소 보정
 */
 
-class KnightDuel
+#pragma once
+#include "BattleManager.h"
+#include "Enemy.h"
+#include <string>
+
+class GameManager
 {
+public:
+    explicit GameManager(Player& InPlayer)
+        : PlayerActor(InPlayer), Battle(InPlayer) {
+    }
 
+    ~GameManager() { DestroyEnemy(); }
+
+    void Reset();               // 적 정리
+    bool SpawnBoss();           // 알드릭 1회 생성 (이미 있으면 false)
+    BattleManager& GetBattle() { return Battle; }
+    Enemy* GetEnemy() const { return EnemyActor; }
+
+private:
+    void   DestroyEnemy();
+    Enemy* CreateAldric();      // 알드릭 생성
+    int    RandRange(int min, int max) const;
+    Stance RandomStance() const;
+
+private:
+    Player& PlayerActor;
+    BattleManager Battle;
+    Enemy* EnemyActor = nullptr;
 };
-

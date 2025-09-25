@@ -1,201 +1,194 @@
-#include "Enemy.h"
-#include <random>
-
 /*
   - 성향: 랜덤 생성
-	   공격형: 일반 60%, 가드 20%, 강공 20%
-	   방어형: 가드 60%, 일반 20%, 강공 20%
-	   균형형: 일반 40%, 가드 40%, 강공 20%
+	   공격형: 일반 60%, 강공 20%, 가드 20% 
+	   방어형: 일반 20%, 강공 20%, 가드 60% 
+	   균형형: 일반 40%, 강공 20%, 가드 40% 
+    전조(30%): 대사를 통한 공격확률 증가
+       공격형: 일반 70%, 강공 20%, 가드 10%
+       방어형: 일반 30%, 강공 20%, 가드 50%
+       균형형: 일반 50%, 강공 20%, 가드 30%
 
    - 전조(텔레그래프): 대화를 통한 심리전 강화
 	   예시) [칼집에서 검을 뽑는 소리가 들립니다.]
-	   공격형 성향 (대사 뜰시 공격 확률 30% + 일반공격 확률 60% = 공격 확률 90%)
-
-	공 : 손이 칼자루를 향해 서서히 움직인다
-		 차갑게 빛나는 눈이 상대의 약점을 겨눈다
-		 칼집에서 검을 뽑는 소리가 들린다
-		 상대의 빈틈을 노리듯 한 발 앞으로 디딘다
-	방:  방패를 단단히 고쳐잡는 기척이 난다
-		 방패를 쥔 손에 힘이 들어간다 .
-		 어깨가 무겁게 움츠러들며 몸을 단단히 가다듬는다
-		 심호흡을 삼키며 방패 뒤로 시선을 감춘다
-	균형 :상대가 호흡을 고르며 움직임을 살핀다
-		  다음 행동을 숨기듯 자세를 가다듬는다
-		  차분한 눈빛으로 상대의 움직임을 지켜본다
-		  발걸음을 멈추고 호흡을 가다듬는다
 */
+#include "Enemy.h"
+#include <cstdlib>
+#include <cstdio>
 
-
-
-// 간단 범위 정수 난수
-static int RandomRange(int Min, int Max)
+// 확률 
+static inline int RandRange() // 0~99
 {
-	return Min + rand() % (Max - Min + 1);
+    return rand() % 100;
+}
+static inline int Rand3()     // 방향 (High/Mid/Low)
+{ 
+    return rand() % 3; 
 }
 
-void Enemy::TakeTurn()    
+// 전조(텔레그래프) 30% 발동
+bool Enemy::TelegraphRoll() const
 {
-	/////////////////////////////////될지 안될지 모름
-	//전조 대사
-	const bool telegraph = (RandomRange(1, 100) <= 30);  // 전조 확률 30 %
-
-	if (telegraph)
-	{
-		const std::vector<std::string>* TargetLines = nullptr;
-
-		switch (stance)
-		{
-		case Stance::Aggressive:
-
-			TargetLines = &AttackLines;
-			break;
-
-		case Stance::Defensive:
-
-			TargetLines = &DefenceLines;
-			break;
-
-		case Stance::Balanced:
-
-			TargetLines = &BalancedLines;
-			break;
-
-		default:
-			return;
-		}
-
-		if (TargetLines && !TargetLines->empty())
-		{
-			int MaxIndex = static_cast<int>(TargetLines->size()) - 1;
-			int RandomIndex = RandomRange(0, MaxIndex);
-
-			printf("전조: %s\n", TargetLines->at(RandomIndex).c_str()); // 대사 출력
-		}
-	}
-	else
-	{
-		// 전조가 발생하지 않을 확률 70% 
-		// printf("아무런 기척도 없다.\n");
-	}
+    return RandRange() < TelegraphPercent;  // 30%
 }
 
-	// 성향(Stance)에 따른 기본 선택 확률
-	int EnemyStanceRoll = RandomRange(1, 100);
-
-	ActionType Act = ActionType::Guard;
-	AttackKind Kind = AttackKind::Normal;
-
-	/////////////////////////////////// 여기부터 손봐야 됨
-	switch (stance)
-	{
-	case Stance::Aggressive:       // 공격형: 일반 60%, 가드 20%, 강공 20%
-
-		if (EnemyStanceRoll <= 60)
-		{
-			Act = ActionType::Attack;
-			Kind = AttackKind::Normal;
-		}
-		else if (EnemyStanceRoll <= 80)
-		{
-			Act = ActionType::Guard;
-		}
-		else
-		{
-			Act = ActionType::Attack;
-			Kind = AttackKind::Strong;
-		}
-		break;
-
-	case Stance::Defensive:       // 방어형: 가드 60%, 일반 20%, 강공 20%
-
-		if (EnemyStanceRoll <= 60)
-		{
-			Act = ActionType::Guard;
-		}
-		else if (EnemyStanceRoll <= 80)
-		{
-			Act = ActionType::Attack;
-			Kind = AttackKind::Normal;
-		}
-		else
-		{
-			Act = ActionType::Attack;
-			Kind = AttackKind::Strong;
-		}
-		break;
-
-	case Stance::Balanced:    // 균형형: 일반 40%, 가드 40%, 강공 20%
-
-		if (EnemyStanceRoll <= 40)
-		{
-			Act = ActionType::Attack;
-			Kind = AttackKind::Normal;
-		}
-		else if (EnemyStanceRoll <= 80)
-		{
-			Act = ActionType::Guard;
-		}
-		else
-		{
-			Act = ActionType::Attack;
-			Kind = AttackKind::Strong;
-		}
-		break;
-
-	default:
-		break;
-	}
-
-	// ST(스태미나) 보정
-	const int AttackNormalCost = 5;
-	const int AttackStrongCost = 25;
-	const int DodgeCost = 30;
-
-	if (Act == ActionType::Attack)
-	{
-		if (Kind == AttackKind::Strong && ST < AttackStrongCost)
-		{
-			// ST 부족하면 강한 공격 불가 -> 일반 공격도 안되면 -> 가드
-			if (ST >= AttackNormalCost)
-			{
-				Kind = AttackKind::Normal;
-			}
-			else
-			{
-				Act = ActionType::Guard;
-			}
-		}
-		else if (Kind == AttackKind::Normal && ST < AttackNormalCost)
-		{
-			Act = ActionType::Guard;
-		}
-	}
-	else if (Act == ActionType::Dodge)
-	{
-		if (ST < DodgeCost)
-		{
-			Act = ActionType::Guard;
-		}
-	}
-
-	choice.Action = Act;   // 최종 선택 하기
-
-	if (Act == ActionType::Attack || Act == ActionType::Guard)
-	{
-		// High, Mid, Low 확률 선택
-		choice.Direction = static_cast<CombatDirection>(RandomRange(0, 2));
-	}
-	if (Act == ActionType::Attack)
-	{
-		choice.Kind = Kind;
-	}
-	else
-	{
-		choice.Kind = AttackKind::Normal;
-	}
-
-	choice.Target = nullptr;
+// 성향별 전조 대사 한 줄 골라서 반환
+const std::string& Enemy::TelegraphLinePick(Stance InStance) const
+{
+    switch (InStance)
+    {
+    case Stance::Aggressive:
+        return AttackLines[RandRange() % AttackLines.size()];
+    case Stance::Defensive:
+        return DefensiveLines[RandRange() % DefensiveLines.size()];
+    case Stance::Balanced:
+    default:
+        return BalancedLines[RandRange() % BalancedLines.size()];
+    }
 }
 
+// 성향 기본 분포(전조 없음)
+void Enemy::BaseDistribution(Stance InStance, int& OutNormal, int& OutStrong, int& OutGuard) const
+{
+    switch (InStance)
+    {
+    case Stance::Aggressive: // 일반 60%, 강공 20%, 가드 20%
+        OutNormal = 60; OutStrong = 20; OutGuard = 20;
+        break;
+    case Stance::Defensive:  // 일반 20%, 강공 20%, 가드 60%
+        OutNormal = 20; OutStrong = 20; OutGuard = 60;
+        break;
+    case Stance::Balanced:   // 일반 40%, 강공 20%, 가드 40%
+    default:
+        OutNormal = 40; OutStrong = 20; OutGuard = 40;
+        break;
+    }
+}
 
+// 전조가 떴을 때 '명시 분포'
+void Enemy::TelegraphDistribution(Stance InStance, int& OutNormal, int& OutStrong, int& OutGuard) const
+{
+    switch (InStance)
+    {
+    case Stance::Aggressive: // 일반 70%, 강공 20%, 가드 10%
+        OutNormal = 70; OutStrong = 20; OutGuard = 10;
+        break;
+    case Stance::Defensive:  // 일반 30%, 강공 20%, 가드 50%
+        OutNormal = 30; OutStrong = 20; OutGuard = 50;
+        break;
+    case Stance::Balanced:   // 일반 50%, 강공 20%, 가드 30%
+    default:
+        OutNormal = 50; OutStrong = 20; OutGuard = 30;
+        break;
+    }
+}
 
+// 퍼센트 분포로 (행동/공격종류) 결정
+ActionType Enemy::PickAction(int InNormalPct, int InStrongPct, int InGuardPct, AttackKind& OutKind) const
+{
+    int ActionRoll = RandRange();       // 0~99
+
+    if (ActionRoll < InNormalPct)      
+    {
+        OutKind = AttackKind::Normal;   // 일반 공격
+        return ActionType::Attack;
+    }
+    if (ActionRoll < InNormalPct + InStrongPct)
+    {
+        OutKind = AttackKind::Strong;   // 강한 공격
+        return ActionType::Attack;
+    }
+
+    return ActionType::Guard;           // 가드 
+}
+
+// 공격,가드 (High/Mid/Low) 무작위
+CombatDirection Enemy::PickDirection() const
+{
+    switch (Rand3())
+    {
+    case 0: 
+        return CombatDirection::High;
+    case 1: 
+        return CombatDirection::Mid;
+    default: 
+        return CombatDirection::Low;
+    }
+}
+
+//ST 부족 시 자동 강등(강공->일반->가드), 가드는 비용 없음
+void Enemy::CheckStamina(ActionType& OutAct, AttackKind& OutKind, int InST) const
+{
+    if (OutAct == ActionType::Attack)
+    {
+        if (OutKind == AttackKind::Strong)
+        {
+            if (InST < 25)                         // 강공 ST 부족할시
+            {
+                if (InST >= 5)
+                {
+                    OutKind = AttackKind::Normal;  // 강공 -> 일반
+                }
+                else
+                {
+                    OutAct = ActionType::Guard;    // ST 없으면 가드
+                }
+            }
+        }
+        else // 일반 공격
+        {
+            if (InST < 5)
+            {
+                OutAct = ActionType::Guard;        // ST 없으면 가드
+            }
+        }
+
+        return;
+    }
+
+    if (OutAct == ActionType::Dodge)
+    {
+        if (InST < 30) // 회피 ST 부족할시 가드
+        {
+            OutAct = ActionType::Guard;
+        }
+        return;
+    }
+}
+
+// 적 (성향/전조/분포) 행동 선택 
+void Enemy::TakeTurn()
+{
+    // 기본 선택 초기화 ClearChoice()
+    // 여기서 (성향/전조/분포) 기반으로 choice 설정
+    int NormalPct = 0;
+    int StrongPct = 0;
+    int GuardPct = 0;
+
+    // 전조 굴림
+    bool Telegraph = TelegraphRoll();
+
+    if (Telegraph) // 전조 분포(명시값) 적용 , 전조 대사
+    {
+        TelegraphDistribution(stance, NormalPct, StrongPct, GuardPct);
+        const std::string& line = TelegraphLinePick(stance);
+        printf("%s\n", line.c_str());
+    }
+    else           // 기본 분포
+    {
+         BaseDistribution(stance, NormalPct, StrongPct, GuardPct); 
+    }
+
+    AttackKind SelectedKind{};                              // 공격 종류 담을 변수 (PickAction이 값을 채움)
+    ActionType SelectedAction = PickAction(NormalPct, StrongPct, GuardPct, SelectedKind); // (공격/가드) 결정
+    CombatDirection SelectedDirection = PickDirection();   // 방향 선택 (공격/가드)
+    CheckStamina(SelectedAction, SelectedKind, ST);        // 스태미너 검사 및 자동 강등
+
+    // 최종 선택 적용
+    choice.Action = SelectedAction;              // 공격/가드/회피
+    choice.Direction = SelectedDirection;        // 상/중/하
+
+    if (SelectedAction == ActionType::Attack)   // 공격일 때만 (일반/강공) 적용 
+    {
+        choice.Kind = SelectedKind;         
+    }
+}

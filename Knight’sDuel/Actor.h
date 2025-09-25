@@ -52,7 +52,10 @@ public:
         ClearChoice();      
     }
     virtual ~Actor() {}             //부모 소멸자(상속 대비)
-    virtual void ClearChoice() { choice = {}; }  // 이번 턴의 행동 선택을 초기 상태로
+    virtual void ClearChoice()      // 이번 턴의 행동 선택 초기화
+    { 
+        choice = { ActionType::None, CombatDirection::Mid, AttackKind::Normal, nullptr };
+    }  
     virtual void TakeTurn() = 0;    // 턴 명시. 만약 행동이 비어 있으면 기본 행동(가드 중단)
 
     // 리소스 관리
@@ -65,6 +68,24 @@ public:
     void TakeDamage(int Damage);                 // 피해 적용
     void RefreshDebuff(const Debuff& NewDebuff); // 디버프 갱신
     void TickDebuff();                           // 턴마다 디버프 처리
+
+    // 턴 입력 선택
+    void ChoiceAttack(CombatDirection InDirection, AttackKind InKind, Actor* InTarget)
+    {
+        choice.Action = ActionType::Attack;
+        choice.Direction = InDirection;
+        choice.Kind = InKind;
+        choice.Target = InTarget;
+    }
+    void ChoiceGuard(CombatDirection InDirection)
+    {
+        choice.Action = ActionType::Guard;
+        choice.Direction = InDirection;
+    }
+    void ChoiceDodge()
+    {
+        choice.Action = ActionType::Dodge;
+    }
 
     // 상태 확인
     bool IsDead() const { return HP <= 0; }
@@ -95,12 +116,12 @@ protected:
     int ATK = 0;      // 공격
     int DEF = 0;      // 방어
 
-    struct Choice  // (행동/방향/강도/대상) 
+    struct Choice  // (행동/방향/공격/대상) 
     {
-        ActionType Action = ActionType::None;
-        CombatDirection Direction = CombatDirection::Mid;
-        AttackKind Kind = AttackKind::Normal;
-        Actor* Target = nullptr;
+        ActionType Action;
+        CombatDirection Direction;
+        AttackKind Kind;
+        Actor* Target;
     };
 
     Choice choice;
