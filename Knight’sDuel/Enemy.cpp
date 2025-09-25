@@ -25,29 +25,59 @@
 		  발걸음을 멈추고 호흡을 가다듬는다
 */
 
+
+
 // 간단 범위 정수 난수
 static int RandomRange(int Min, int Max)
 {
 	return Min + rand() % (Max - Min + 1);
 }
 
-void Enemy::TakeTurn()
+void Enemy::TakeTurn()    
 {
-	const bool telegraph = (RandomRange(1, 100) <= 30); // 전조 확률 30퍼
+	/////////////////////////////////될지 안될지 모름
+	//전조 대사
+	const bool telegraph = (RandomRange(1, 100) <= 30);  // 전조 확률 30 %
 
 	if (telegraph)
 	{
+		const std::vector<std::string>* TargetLines = nullptr;
+
 		switch (stance)
 		{
 		case Stance::Aggressive:
-			printf("");
-		case Stance::Defensive:
-			printf("");
-		case Stance::Balanced:
-			printf("");
+
+			TargetLines = &AttackLines;
 			break;
+
+		case Stance::Defensive:
+
+			TargetLines = &DefenceLines;
+			break;
+
+		case Stance::Balanced:
+
+			TargetLines = &BalancedLines;
+			break;
+
+		default:
+			return;
+		}
+
+		if (TargetLines && !TargetLines->empty())
+		{
+			int MaxIndex = static_cast<int>(TargetLines->size()) - 1;
+			int RandomIndex = RandomRange(0, MaxIndex);
+
+			printf("전조: %s\n", TargetLines->at(RandomIndex).c_str()); // 대사 출력
 		}
 	}
+	else
+	{
+		// 전조가 발생하지 않을 확률 70% 
+		// printf("아무런 기척도 없다.\n");
+	}
+}
 
 	// 성향(Stance)에 따른 기본 선택 확률
 	int EnemyStanceRoll = RandomRange(1, 100);
@@ -55,6 +85,7 @@ void Enemy::TakeTurn()
 	ActionType Act = ActionType::Guard;
 	AttackKind Kind = AttackKind::Normal;
 
+	/////////////////////////////////// 여기부터 손봐야 됨
 	switch (stance)
 	{
 	case Stance::Aggressive:       // 공격형: 일반 60%, 가드 20%, 강공 20%
@@ -162,6 +193,7 @@ void Enemy::TakeTurn()
 	{
 		choice.Kind = AttackKind::Normal;
 	}
+
 	choice.Target = nullptr;
 }
 
