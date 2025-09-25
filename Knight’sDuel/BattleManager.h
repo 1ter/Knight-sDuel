@@ -20,8 +20,8 @@ public:
     {
     }
 
-    void RunBattle();      // 전체 전투 루프 실행
     void NextTurn();       // 턴 처리
+    void RunBattle();      // 전체 전투 루프 실행
     BattleResult GetResult() const { return Result; }
 
 private:
@@ -29,6 +29,6 @@ private:
     Actor* Enemy;
     BattleResult Result;
 
-    void PrintStatus() const;  // 상태 출력
-    void ResolveActions();     // 플레이어/적 행동 판정
+    void PrintBattleLog() const;  // 상태 출력
+    void ResolveActions();        // 플레이어/적 행동 판정
 };

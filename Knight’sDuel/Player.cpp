@@ -1,29 +1,13 @@
 #include "Player.h"
 
-void Player::TakeTurn() 
+// 아직 입력 없음
+void Player::TakeTurn()
 {
-    switch (Planned.Action) {
-    case PlayerAction::Attack:
-        if (Planned.Target) {
-            // 공격 로직 (예: Planned.Target->TakeDamage(ATK);)
-        }
-        break;
-    case PlayerAction::Guard:
-        // 가드 로직
-        break;
-    case PlayerAction::Skill:
-        if (Planned.Target) {
-            // 스킬 로직 (Planned.Param == SkillId)
-        }
-        break;
-    case PlayerAction::Item:
-        if (Planned.Target) {
-            // 아이템 사용 로직 (Planned.Param == ItemId)
-        }
-        break;
-    default:
-        // None: 아무 것도 안 함 (혹은 기본 행동)
-        break;
+    if (choice.Action == ActionType::None)   // 기본값(가드/중단)
+    {
+        choice.Action = ActionType::Guard;
+        choice.Direction = CombatDirection::Mid;
+        //choice.Kind = AttackKind::Normal;
+        //choice.Target = nullptr;            
     }
-    ClearPlan(); // 다음 턴을 위해 계획 초기화
 }

@@ -82,12 +82,16 @@ void Actor::RefreshDebuff(const Debuff& NewDebuff)
         if (NewDebuff.Type == DebuffType::Stagger)  // 디버프가 경직이면 DEF 감소
         {
             DEF -= NewDebuff.Value;
-            if (DEF < 0) DEF = 0;
+
+            if (DEF < 0)
+            {
+                DEF = 0;
+            }
         }
         return;
     }
 
-    Debuff& Current = *Iter;    // 기존 존재: '더 강함/더 긴 것'으로 갱신 
+    Debuff& Current = *Iter;    // 기존 존재 -> '더 강함/더 긴 것'으로 갱신 
 
     if (NewDebuff.Type == DebuffType::Stagger)
     {

@@ -126,14 +126,15 @@
     <ClInclude Include="Actor.h" />
     <ClInclude Include="BattleManager.h" />
     <ClInclude Include="Enemy.h" />
-    <ClInclude Include="KnightDuel.h" />
+    <ClInclude Include="KnightDuelManager.h" />
     <ClInclude Include="Player.h" />
+    <ClInclude Include="헤더.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Actor.cpp" />
     <ClCompile Include="BattleManager.cpp" />
     <ClCompile Include="Enemy.cpp" />
-    <ClCompile Include="KnightDuel.cpp" />
+    <ClCompile Include="KnightDuelManager.cpp" />
     <ClCompile Include="Player.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
