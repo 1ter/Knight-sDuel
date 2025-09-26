@@ -181,29 +181,29 @@ void BattleManager::PrintStatus() const
 
     if (!Log.Telegraph.empty())
     {
-        std::printf("[전조] %s\n", Log.Telegraph.c_str());
+        printf("[전조] %s\n", Log.Telegraph.c_str());
     }
     if (!Log.EnemyAction.empty())
     {
-        std::printf("[적행동] %s\n", Log.EnemyAction.c_str());
+        printf("[적행동] %s\n", Log.EnemyAction.c_str());
     }
 
     if (!Log.Judge.empty())
     {
-        std::printf("[판정] %s\n", Log.Judge.c_str());
+        printf("[판정] %s\n", Log.Judge.c_str());
     }
     if (!Log.Effects.empty())
     {
-        std::printf("[효과] %s\n", Log.Effects.c_str());
+        printf("[효과] %s\n", Log.Effects.c_str());
     }
 
     if (!Log.Damage.empty())
     {
-        std::printf("[피해] %s\n", Log.Damage.c_str());
+        printf("[피해] %s\n", Log.Damage.c_str());
     }
     if (!Log.Extra.empty())
     {
-        std::printf("[추가효과] %s\n", Log.Extra.c_str());
+        printf("[추가효과] %s\n", Log.Extra.c_str());
     }
     printf("─────────────────────────────────────────────────────────────\n");
 }
