@@ -1,8 +1,8 @@
-#include "Actor.h"
+ï»¿#include "Actor.h"
 #include <algorithm>
 #include <string>
 
-// HP, ST ÃÖ´ë/ÃÖ¼Ò Á¦ÇÑ
+// HP, ST ìµœëŒ€/ìµœì†Œ ì œí•œ
 void Actor::MaxVital()             
 {
     if (HP < 0)
@@ -22,18 +22,18 @@ void Actor::MaxVital()
         ST = MaxST;
     }
 }
-// ÅÏ ½ÃÀÛ ½Ã ST +5 (ÃÖ´ëÄ¡ Á¦ÇÑ Æ÷ÇÔ)
+// í„´ ì‹œì‘ ì‹œ ST +5 (ìµœëŒ€ì¹˜ ì œí•œ í¬í•¨)
 void Actor::RegenST()                 
 {
     ST += 5;
     MaxVital();
 }
-// ST°¡ Çàµ¿¿¡ ÇÊ¿äÇÑ Cost ÀÌ»óÀÎÁö È®ÀÎ
+// STê°€ í–‰ë™ì— í•„ìš”í•œ Cost ì´ìƒì¸ì§€ í™•ì¸
 bool Actor::CheckST(int Cost) const   
 {
     return ST >= Cost;
 }
-// ST°¡ Çàµ¿¿¡ ÇÊ¿äÇÑ Cost ÀÌ»óÀÎÁö È®ÀÎ
+// STê°€ í–‰ë™ì— í•„ìš”í•œ Cost ì´ìƒì¸ì§€ í™•ì¸
 void Actor::ConsumeST(int Cost)      
 {
     ST -= Cost;
@@ -44,7 +44,7 @@ void Actor::ConsumeST(int Cost)
     }
 }
 
-// ¹ŞÀº ÇÇÇØ Àû¿ë
+// ë°›ì€ í”¼í•´ ì ìš©
 void Actor::TakeDamage(int Damage)    
 {
     if (Damage <= 0)
@@ -60,15 +60,15 @@ void Actor::TakeDamage(int Damage)
     }
 }
 
-// »õ µğ¹öÇÁ ÀçÀû¿ë,°»½Å ('´õ °­ÇÔ/´õ ±ä °Í')
+// ìƒˆ ë””ë²„í”„ ì¬ì ìš©,ê°±ì‹  ('ë” ê°•í•¨/ë” ê¸´ ê²ƒ')
 void Actor::RefreshDebuff(const Debuff& NewDebuff)
 {
-    if (NewDebuff.Type == DebuffType::None)         // »õ·Î Àû¿ëÇÒ µğ¹öÇÁ°¡ ¾ø´Â °æ¿ì
+    if (NewDebuff.Type == DebuffType::None)         // ìƒˆë¡œ ì ìš©í•  ë””ë²„í”„ê°€ ì—†ëŠ” ê²½ìš°
     {
         return;
     }
 
-    // µ¿ÀÏ Å¸ÀÔ µğ¹öÇÁ Ã£±â
+    // ë™ì¼ íƒ€ì… ë””ë²„í”„ ì°¾ê¸°
     auto Iter = std::find_if(ActiveDebuff.begin(), ActiveDebuff.end(),
         [NewDebuff](const Debuff& D) 
         { 
@@ -76,11 +76,11 @@ void Actor::RefreshDebuff(const Debuff& NewDebuff)
         }
     );
 
-    if (Iter == ActiveDebuff.end())                 // ¸ø Ã£¾ÒÀ»½Ã
+    if (Iter == ActiveDebuff.end())                 // ëª» ì°¾ì•˜ì„ì‹œ
     {
-        ActiveDebuff.push_back(NewDebuff);          // ½Å±Ô Àû¿ë
+        ActiveDebuff.push_back(NewDebuff);          // ì‹ ê·œ ì ìš©
 
-        if (NewDebuff.Type == DebuffType::Stagger)  // µğ¹öÇÁ°¡ °æÁ÷ÀÌ¸é DEF °¨¼Ò
+        if (NewDebuff.Type == DebuffType::Stagger)  // ë””ë²„í”„ê°€ ê²½ì§ì´ë©´ DEF ê°ì†Œ
         {
             DEF -= NewDebuff.Value;
 
@@ -92,30 +92,30 @@ void Actor::RefreshDebuff(const Debuff& NewDebuff)
         return;
     }
 
-    Debuff& Current = *Iter;    // ±âÁ¸ µğ¹öÇÁ°¡ ÀÖÀ» ¶§ ¡æ °»½Å 
+    Debuff& Current = *Iter;    // ê¸°ì¡´ ë””ë²„í”„ê°€ ìˆì„ ë•Œ â†’ ê°±ì‹  
 
     if (NewDebuff.Type == DebuffType::Stagger)
     {
-        // °æÁ÷Àº DEF °¨¼ÒÄ¡°¡ ´õ Å« ÂÊÀ» ¿ì¼±
+        // ê²½ì§ì€ DEF ê°ì†Œì¹˜ê°€ ë” í° ìª½ì„ ìš°ì„ 
         int OldDefPenalty = Current.Value;
         int NewDefPenalty = std::max(Current.Value, NewDebuff.Value);
          
         if (NewDefPenalty > OldDefPenalty)
         {
             int DefPenaltyDiff = NewDefPenalty - OldDefPenalty;
-            DEF = std::max(0, DEF - DefPenaltyDiff);    // µğ¹öÇÁ Àû¿ë ÇöÀç ¹æ¾î·Â      
+            DEF = std::max(0, DEF - DefPenaltyDiff);    // ë””ë²„í”„ ì ìš© í˜„ì¬ ë°©ì–´ë ¥      
         }
-        // °ª/Áö¼Ó ÅÏ °»½Å
+        // ê°’/ì§€ì† í„´ ê°±ì‹ 
         Current.Value = NewDefPenalty; 
         Current.Duration = std::max(Current.Duration, NewDebuff.Duration);
         return;
     }
-    // ÃâÇ÷, ¾àÈ­ : Æ½ ÇÇÇØ/¼Ò¸ğ·®, Áö¼Ó '³ôÀº ÂÊ'À¸·Î °»½Å
+    // ì¶œí˜ˆ, ì•½í™” : í‹± í”¼í•´/ì†Œëª¨ëŸ‰, ì§€ì† 'ë†’ì€ ìª½'ìœ¼ë¡œ ê°±ì‹ 
     Current.Value = std::max(Current.Value, NewDebuff.Value);
     Current.Duration = std::max(Current.Duration, NewDebuff.Duration);
 }
 
-// ¸Å ÅÏ¸¶´Ù µğ¹öÇÁ È¿°ú Àû¿ë ¹× ³²Àº ÅÏ Â÷°¨
+// ë§¤ í„´ë§ˆë‹¤ ë””ë²„í”„ íš¨ê³¼ ì ìš© ë° ë‚¨ì€ í„´ ì°¨ê°
 void Actor::TickDebuff()           
 {
     if (ActiveDebuff.empty())
@@ -123,74 +123,74 @@ void Actor::TickDebuff()
         return;
     }
 
-    // 1) °¢ µğ¹öÇÁ È¿°ú Àû¿ë
+    // 1) ê° ë””ë²„í”„ íš¨ê³¼ ì ìš©
     for (Debuff& D : ActiveDebuff)
     {
         switch (D.Type)
         {
-        case DebuffType::Bleed:     // HP (-Value/ÅÏ)
+        case DebuffType::Bleed:     // HP (-Value/í„´)
 
             HP -= D.Value;
             break;
 
-        case DebuffType::Weakness:  // ST (-Value/ÅÏ)
+        case DebuffType::Weakness:  // ST (-Value/í„´)
 
             ST -= D.Value;
             break;
 
-        case DebuffType::Stagger:   // DEF °¨¼Ò È¿°ú´Â ÀÌ¹Ì Àû¿ëµÇ¾î ÀÖÀ½
+        case DebuffType::Stagger:   // DEF ê°ì†Œ íš¨ê³¼ëŠ” ì´ë¯¸ ì ìš©ë˜ì–´ ìˆìŒ
             break;
 
         default:
             break;
         }
 
-        if (D.Duration > 0)         // µğ¹öÇÁ ÀÖÀ» ¶§ ³²Àº ÅÏ °¨¼Ò
+        if (D.Duration > 0)         // ë””ë²„í”„ ìˆì„ ë•Œ ë‚¨ì€ í„´ ê°ì†Œ
         {
             D.Duration -= 1;       
         }
     }
 
-    // ¸¸·áµÈ µğ¹öÇÁ Á¦°Å
+    // ë§Œë£Œëœ ë””ë²„í”„ ì œê±°
     std::vector<Debuff> RemainDebuff;
     RemainDebuff.reserve(ActiveDebuff.size());
 
     for (const Debuff& D : ActiveDebuff)
     {
-        if (D.Duration > 0)        // ¾ÆÁ÷ ³²¾ÆÀÖÀ½ ¡æ À¯Áö
+        if (D.Duration > 0)        // ì•„ì§ ë‚¨ì•„ìˆìŒ â†’ ìœ ì§€
         {
             RemainDebuff.push_back(D);
         }
         else
         {
-            if (D.Type == DebuffType::Stagger)  // °æÁ÷Àº ¸¸·á ½Ã DEF º¹±¸
+            if (D.Type == DebuffType::Stagger)  // ê²½ì§ì€ ë§Œë£Œ ì‹œ DEF ë³µêµ¬
             {
                 DEF += D.Value;       
             }
         }
     }
-    // ÃÊ±âÈ­ ÇÏ°í °»½Å
+    // ì´ˆê¸°í™” í•˜ê³  ê°±ì‹ 
     ActiveDebuff.clear();
     for (const Debuff& D : RemainDebuff) 
     {
         ActiveDebuff.push_back(D);
     }
-    // HP, ST Å¬·¥ÇÁ
+    // HP, ST í´ë¨í”„
     MaxVital();   
 }
 
-// µğ¹öÇÁ Á¤º¸¸¦ »ç¶÷ÀÌ ÀĞÀ» ¼ö ÀÖ´Â ¹®ÀÚ¿­·Î º¯È¯ (·Î±×/Ãâ·Â¿ë)
+// ë””ë²„í”„ ì •ë³´ë¥¼ ì‚¬ëŒì´ ì½ì„ ìˆ˜ ìˆëŠ” ë¬¸ìì—´ë¡œ ë³€í™˜ (ë¡œê·¸/ì¶œë ¥ìš©)
 std::string Debuff::ToString() const
 {
         std::string DirectionStr;
         switch (Direction)
         {
         case CombatDirection::High: 
-            DirectionStr = "»ó´Ü(³»·ÁÄ¡±â)"; break;
+            DirectionStr = "ìƒë‹¨(ë‚´ë ¤ì¹˜ê¸°)"; break;
         case CombatDirection::Mid:  
-            DirectionStr = "Áß´Ü(Âî¸£±â)";   break;
+            DirectionStr = "ì¤‘ë‹¨(ì°Œë¥´ê¸°)";   break;
         case CombatDirection::Low:  
-            DirectionStr = "ÇÏ´Ü(¾µ¾îº£±â)"; break;
+            DirectionStr = "í•˜ë‹¨(ì“¸ì–´ë² ê¸°)"; break;
         default: 
             ;
         }
@@ -198,13 +198,13 @@ std::string Debuff::ToString() const
         switch (Type)
         {
         case DebuffType::Stagger:
-            return DirectionStr + " ¡æ °æÁ÷ DEF -" + std::to_string(Value) + " (" + std::to_string(Duration) + "ÅÏ)";
+            return DirectionStr + " â†’ ê²½ì§ DEF -" + std::to_string(Value) + " (" + std::to_string(Duration) + "í„´)";
         case DebuffType::Bleed:
-            return DirectionStr + " ¡æ ÃâÇ÷ HP -" + std::to_string(Value) + "/ÅÏ (" + std::to_string(Duration) + "ÅÏ)";
+            return DirectionStr + " â†’ ì¶œí˜ˆ HP -" + std::to_string(Value) + "/í„´ (" + std::to_string(Duration) + "í„´)";
         case DebuffType::Weakness:
-            return DirectionStr + " ¡æ ¾àÈ­ ST -" + std::to_string(Value) + "/ÅÏ (" + std::to_string(Duration) + "ÅÏ)";
+            return DirectionStr + " â†’ ì•½í™” ST -" + std::to_string(Value) + "/í„´ (" + std::to_string(Duration) + "í„´)";
         default:
-            return "";   // ºó ¹®ÀÚ¿­, µğ¹öÇÁ ¾øÀ½
+            return "";   // ë¹ˆ ë¬¸ìì—´, ë””ë²„í”„ ì—†ìŒ
         }
 }
 

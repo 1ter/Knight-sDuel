@@ -111,6 +111,35 @@ void BattleManager::ExecuteTurn()
         if (StaminaActionPlayer != PlayerActor.GetChoiceAction() || StaminaKindPlayer != PlayerActor.GetChoiceKind())
         {
             auto Direction = PlayerActor.GetChoiceDirection();
+
+            if (StaminaActionPlayer == ActionType::Guard && PlayerActor.GetChoiceAction() == ActionType::Dodge)
+            {
+                // 회피 → 가드 강등 (스태미너 부족)
+                if (Log.Extra.empty())
+                {
+                    Log.Extra = "스태미너 부족 → 가드로 전환합니다";
+                }
+            }
+            else if (PlayerActor.GetChoiceAction() == ActionType::Attack &&
+                               StaminaActionPlayer == ActionType::Attack &&
+                       PlayerActor.GetChoiceKind() == AttackKind::Strong &&
+                                 StaminaKindPlayer == AttackKind::Normal)
+            {
+                // 강공 → 일반 강등
+                if (Log.Extra.empty())
+                {
+                    Log.Extra = "스태미너 부족 → 강공을 일반으로 전환";
+                }
+            }
+            else if       (StaminaActionPlayer == ActionType::Guard &&
+                 PlayerActor.GetChoiceAction() != ActionType::Guard)
+            {
+                // (공격/기타) → 가드 강등
+                if (Log.Extra.empty())
+                {
+                    Log.Extra = "스태미너 부족 → 가드로 전환합니다";
+                }
+            }
             if (StaminaActionPlayer == ActionType::Attack)
             {
                 PlayerActor.ChoiceAttack(Direction, StaminaKindPlayer, EnemyActor);
@@ -134,6 +163,7 @@ void BattleManager::ExecuteTurn()
         if (StaminaActionEnemy != EnemyActor->GetChoiceAction() || StaminaKindEnemy != EnemyActor->GetChoiceKind())
         {
             auto Direction = EnemyActor->GetChoiceDirection();
+
             if (StaminaActionEnemy == ActionType::Attack)
             {
                 EnemyActor->ChoiceAttack(Direction, StaminaKindEnemy, &PlayerActor);
@@ -155,7 +185,7 @@ void BattleManager::ExecuteTurn()
 // 직전 턴 로그 출력
 void BattleManager::PrintStatus() const
 {
-    printf("─────────────────[Knight’s Duel]────────────────────────\n");
+    printf("─────────────────[Knight’s Duel]────────────────\n");
     printf("적 : %s [성향: %s]\n",
         EnemyActor ? EnemyActor->GetName().c_str() : "(없음)",
         EnemyActor ? ToStance(EnemyActor->GetStance()) : "-");
@@ -170,14 +200,14 @@ void BattleManager::PrintStatus() const
         printf("적 없음\n");
     }
 
-    printf("────────────────────────────────────────────────\n");
+    printf("─────────────────────────────────────────────────\n");
     printf("플레이어 : %s\n", PlayerActor.GetName().c_str());
     PrintBar("HP", PlayerActor.GetHP(), PlayerActor.GetMaxHP(), BarWidth);
     PrintBar("ST", PlayerActor.GetST(), PlayerActor.GetMaxST(), BarWidth);
 
-    printf("────────────────────────────────────────────────────────\n");
+    printf("─────────────────────────────────────────────────\n");
     printf("                    [ VS ]\n");
-    printf("────────────────────────────────────────────────────────\n");
+    printf("─────────────────────────────────────────────────\n");
     if (!Log.Telegraph.empty())
     {
         printf("[전조] %s\n", Log.Telegraph.c_str());
@@ -202,7 +232,7 @@ void BattleManager::PrintStatus() const
     {
         printf("[추가효과] %s\n", Log.Extra.c_str());
     }
-    printf("─────────────────────────────────────────────────────────────\n");
+    printf("─────────────────────────────────────────────────\n");
 }
 
 // 동시 턴제 판정
@@ -341,7 +371,10 @@ void BattleManager::Resolve()
             else
             {
                 Log.Effects.clear();
-                Log.Extra.clear();
+                if (Log.Extra.find("스태미너 부족") == std::string::npos)
+                {
+                    Log.Extra.clear();
+                }
             }
         }
         return;
