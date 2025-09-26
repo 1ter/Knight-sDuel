@@ -167,7 +167,7 @@ void BattleManager::PrintStatus() const
     }
     else
     {
-        std::printf("적 없음\n");
+        printf("적 없음\n");
     }
 
     printf("────────────────────────────────────────────────\n");
