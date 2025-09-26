@@ -170,8 +170,8 @@ void BattleManager::PrintStatus() const
         std::printf("적 없음\n");
     }
 
-    std::printf("────────────────────────────────────────────────\n");
-    std::printf("플레이어 : %s\n", PlayerActor.GetName().c_str());
+    printf("────────────────────────────────────────────────\n");
+    printf("플레이어 : %s\n", PlayerActor.GetName().c_str());
     PrintBar("HP", PlayerActor.GetHP(), PlayerActor.GetMaxHP(), BarWidth);
     PrintBar("ST", PlayerActor.GetST(), PlayerActor.GetMaxST(), BarWidth);
 
