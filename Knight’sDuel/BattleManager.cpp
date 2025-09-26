@@ -178,7 +178,6 @@ void BattleManager::PrintStatus() const
     printf("────────────────────────────────────────────────────────\n");
     printf("                    [ VS ]\n");
     printf("────────────────────────────────────────────────────────\n");
-
     if (!Log.Telegraph.empty())
     {
         printf("[전조] %s\n", Log.Telegraph.c_str());
@@ -187,7 +186,6 @@ void BattleManager::PrintStatus() const
     {
         printf("[적행동] %s\n", Log.EnemyAction.c_str());
     }
-
     if (!Log.Judge.empty())
     {
         printf("[판정] %s\n", Log.Judge.c_str());
@@ -196,7 +194,6 @@ void BattleManager::PrintStatus() const
     {
         printf("[효과] %s\n", Log.Effects.c_str());
     }
-
     if (!Log.Damage.empty())
     {
         printf("[피해] %s\n", Log.Damage.c_str());
