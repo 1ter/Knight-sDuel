@@ -4,6 +4,7 @@
 #include <string>
 
 // 전투 매니저 (적 vs 플레이어)
+// 턴 진행/판정/출력 관리
 class BattleManager
 {
 public:
@@ -18,27 +19,25 @@ public:
     static constexpr int DebuffNormalPct = 30;   // 일반공격 30%
     static constexpr int DebuffStrongPct = 100;  // 강한공격 100%
 
-    // 상태바 출력 폭
+    // 출력 상태바 폭
     static constexpr int BarWidth = 16;
 
 public:
-    // 플레이어 참조
+    // 생성자 
     BattleManager(Player& InPlayer)
-        : PlayerActor(InPlayer)
+        : PlayerActor(InPlayer)   // 플레이어는 참조로 소유
     {
     }
     // 적 설정 (외부 Enemy에서)
     void SetEnemy(Enemy& InEnemy) { EnemyActor = &InEnemy; }
 
-    bool IsBattleEnd() const;                       // 진행 상태       
+    bool IsBattleEnd() const;                       // 전투 종료 여부       
     void StartTurn();                               // 시작 턴 처리 순서
-    void PlanPlayerAttack(CombatDirection InDirection, AttackKind InKind);    //플레이어: 공격 계획
-    void PlanPlayerGuard(CombatDirection InDirection);                        // 플레이어: 가드 계획
-    void PlanPlayerDodge();                                                  // 플레이어: 회피 계획
+    void PlanPlayerAttack(CombatDirection InDirection, AttackKind InKind);    // 플레이어 공격 선택
+    void PlanPlayerGuard(CombatDirection InDirection);                        // 플레이어 가드 선택
+    void PlanPlayerDodge();                                                   // 플레이어 회피 선택획
     void ExecuteTurn();                             // 적 선택 -> ST 검증 -> 타깃 연결 -> 판정
-
-    // 출력
-    void PrintStatus() const;                       // HUD 로그 출력
+    void PrintStatus() const;   // 로그 출력            
 
     // 접근자
     Player& GetPlayer() { return PlayerActor; }     // 플레이어 참조 반환
@@ -63,7 +62,7 @@ private:
     // 패링 즉시반격 (일반공격 적용, ST 0 소모)
     void ParryCounter(Actor& InGuarder, Actor& InAttacker, CombatDirection InGuardDir);
 
-    // 전조 대사
+    // 적 성향에 따른 전조 대사 선택
     const std::string& PickTelegraphLine(Stance InStance) const;
 
 private:
@@ -79,6 +78,6 @@ private:
     };
 
     Player& PlayerActor;          // 플레이어(참조)
-    Enemy* EnemyActor = nullptr; // 적(포인터, 외부 소유)
-    TurnLog Log;              // 직전 턴 로그
+    Enemy* EnemyActor = nullptr; // 적(포인터, 외부에서 할당)
+    TurnLog Log;                 // 직전 턴 로그 결과
 };

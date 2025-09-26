@@ -21,15 +21,17 @@ void Player::RoundResetPlayer(int InRecoveryHP, int InRecoveryST)
             if (D.Type == DebuffType::Stagger)
             {
                 // 경직으로 깎였던 DEF 복구
-                DEF += D.Value;  // RefreshDebuff()에서 DEF -= NewDebuff.Value로 깎였음
+                // RefreshDebuff()에서 DEF -= NewDebuff.Value로 깎였음
+                DEF += D.Value;  
             }
         }
-        ActiveDebuff.clear();
+        ActiveDebuff.clear();  // 디버프 초기화
     }
-    // 회복
+    // 2) HP, ST 회복 (라운드 보상)
     HP += InRecoveryHP;
     ST += InRecoveryST;
-    MaxVital();     // 클램프
-    ClearChoice();  // 턴 선택 초기화
+
+    MaxVital();     // 3) HP/ST 최대치 클램프
+    ClearChoice();  // 4) 턴 선택 초기화
 }
 

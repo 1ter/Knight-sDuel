@@ -2,8 +2,8 @@
 #include <algorithm>
 #include <string>
 
-// 리소스 관리
-void Actor::MaxVital()             // HP, ST 최대/최소 제한
+// HP, ST 최대/최소 제한
+void Actor::MaxVital()             
 {
     if (HP < 0)
     {
@@ -22,19 +22,19 @@ void Actor::MaxVital()             // HP, ST 최대/최소 제한
         ST = MaxST;
     }
 }
-
-void Actor::RegenST()                 // 턴 시작시 ST +5, 최대치 제한
+// 턴 시작 시 ST +5 (최대치 제한 포함)
+void Actor::RegenST()                 
 {
     ST += 5;
     MaxVital();
 }
-
-bool Actor::CheckST(int Cost) const   // ST 확인 
+// ST가 행동에 필요한 Cost 이상인지 확인
+bool Actor::CheckST(int Cost) const   
 {
     return ST >= Cost;
 }
-
-void Actor::ConsumeST(int Cost)       // ST 소모
+// ST가 행동에 필요한 Cost 이상인지 확인
+void Actor::ConsumeST(int Cost)      
 {
     ST -= Cost;
 
@@ -44,8 +44,8 @@ void Actor::ConsumeST(int Cost)       // ST 소모
     }
 }
 
-// 전투 처리
-void Actor::TakeDamage(int Damage)     // 받은 피해 적용
+// 받은 피해 적용
+void Actor::TakeDamage(int Damage)    
 {
     if (Damage <= 0)
     {
@@ -60,7 +60,7 @@ void Actor::TakeDamage(int Damage)     // 받은 피해 적용
     }
 }
 
-// 디버프 재적용 시 '더 강함/더 긴 것'으로 갱신.
+// 새 디버프 재적용,갱신 ('더 강함/더 긴 것')
 void Actor::RefreshDebuff(const Debuff& NewDebuff)
 {
     if (NewDebuff.Type == DebuffType::None)         // 새로 적용할 디버프가 없는 경우
@@ -68,7 +68,7 @@ void Actor::RefreshDebuff(const Debuff& NewDebuff)
         return;
     }
 
-    // 같은 디버프 타입 찾기
+    // 동일 타입 디버프 찾기
     auto Iter = std::find_if(ActiveDebuff.begin(), ActiveDebuff.end(),
         [NewDebuff](const Debuff& D) 
         { 
@@ -92,48 +92,48 @@ void Actor::RefreshDebuff(const Debuff& NewDebuff)
         return;
     }
 
-    Debuff& Current = *Iter;    // 기존 존재 -> '더 강함/더 긴 것'으로 갱신 
+    Debuff& Current = *Iter;    // 기존 디버프가 있을 때 → 갱신 
 
     if (NewDebuff.Type == DebuffType::Stagger)
     {
-        // 경직 재조정: 기존 패널티 되돌리고 새 패널티 적용
+        // 경직은 DEF 감소치가 더 큰 쪽을 우선
         int OldDefPenalty = Current.Value;
         int NewDefPenalty = std::max(Current.Value, NewDebuff.Value);
          
         if (NewDefPenalty > OldDefPenalty)
         {
             int DefPenaltyDiff = NewDefPenalty - OldDefPenalty;
-            DEF = std::max(0, DEF - DefPenaltyDiff);    // 클램프, 디버프 적용 현재 방어력      
+            DEF = std::max(0, DEF - DefPenaltyDiff);    // 디버프 적용 현재 방어력      
         }
-
-        Current.Value = NewDefPenalty;
+        // 값/지속 턴 갱신
+        Current.Value = NewDefPenalty; 
         Current.Duration = std::max(Current.Duration, NewDebuff.Duration);
         return;
     }
-
     // 출혈, 약화 : 틱 피해/소모량, 지속 '높은 쪽'으로 갱신
     Current.Value = std::max(Current.Value, NewDebuff.Value);
     Current.Duration = std::max(Current.Duration, NewDebuff.Duration);
 }
 
-void Actor::TickDebuff()            // 턴마다 디버프 처리
+// 매 턴마다 디버프 효과 적용 및 남은 턴 차감
+void Actor::TickDebuff()           
 {
     if (ActiveDebuff.empty())
     {
         return;
     }
 
-    // 각 디버프 효과 적용 (DEF 무시 고정 효과)
+    // 1) 각 디버프 효과 적용
     for (Debuff& D : ActiveDebuff)
     {
         switch (D.Type)
         {
-        case DebuffType::Bleed:     // HP -Value/턴
+        case DebuffType::Bleed:     // HP (-Value/턴)
 
             HP -= D.Value;
             break;
 
-        case DebuffType::Weakness:  // ST -Value/턴
+        case DebuffType::Weakness:  // ST (-Value/턴)
 
             ST -= D.Value;
             break;
@@ -157,7 +157,7 @@ void Actor::TickDebuff()            // 턴마다 디버프 처리
 
     for (const Debuff& D : ActiveDebuff)
     {
-        if (D.Duration > 0)
+        if (D.Duration > 0)        // 아직 남아있음 → 유지
         {
             RemainDebuff.push_back(D);
         }
@@ -169,16 +169,17 @@ void Actor::TickDebuff()            // 턴마다 디버프 처리
             }
         }
     }
-
+    // 초기화 하고 갱신
     ActiveDebuff.clear();
     for (const Debuff& D : RemainDebuff) 
     {
         ActiveDebuff.push_back(D);
     }
-
-    MaxVital();  
+    // HP, ST 클램프
+    MaxVital();   
 }
 
+// 디버프 정보를 사람이 읽을 수 있는 문자열로 변환 (로그/출력용)
 std::string Debuff::ToString() const
 {
         std::string DirectionStr;
@@ -203,7 +204,7 @@ std::string Debuff::ToString() const
         case DebuffType::Weakness:
             return DirectionStr + " → 약화 ST -" + std::to_string(Value) + "/턴 (" + std::to_string(Duration) + "턴)";
         default:
-            return "";   // 빈 문자열
+            return "";   // 빈 문자열, 디버프 없음
         }
 }
 

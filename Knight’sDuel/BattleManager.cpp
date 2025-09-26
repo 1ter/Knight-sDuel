@@ -5,12 +5,13 @@
 #include <cstdlib>
 #include <algorithm>
 
+// 0~99 난수
 static inline int RandRange()
 {
     return rand() % 100;
 }
 
-// 내부 유틸
+// 내부 유틸: 상태바 출력
 static void PrintBar(const char* Label, int Curr, int Max, int Width)
 {
     int Fill = (Max > 0) ? (Curr * Width) / Max : 0;
@@ -23,6 +24,7 @@ static void PrintBar(const char* Label, int Curr, int Max, int Width)
     std::printf("]\n");
 }
 
+// 성향 enum -> 한글 문자열
 static const char* ToStance(Stance s)
 {
     switch (s)
@@ -36,11 +38,11 @@ static const char* ToStance(Stance s)
     }
 }
 
-// 진행 상태
+// 진행 상태 (전투 종료 판단)
 bool BattleManager::IsBattleEnd() const
 {
-    if (!EnemyActor)
-    {
+    if (!EnemyActor)   // 적 미지정이면 종료
+    {  
         return true;
     }
     return PlayerActor.IsDead() || EnemyActor->IsDead();
@@ -71,17 +73,15 @@ void BattleManager::StartTurn()
     Log = {};
 }
 
-//플레이어: 공격 계획
+// 플레이어 행동 계획(입력 반영)
 void BattleManager::PlanPlayerAttack(CombatDirection InDirection, AttackKind InKind)
 {
     PlayerActor.ChoiceAttack(InDirection, InKind, EnemyActor);
 }
-// 플레이어: 가드 계획
 void BattleManager::PlanPlayerGuard(CombatDirection InDirection)
 {
     PlayerActor.ChoiceGuard(InDirection);
 }
-// 플레이어: 회피 계획
 void BattleManager::PlanPlayerDodge()
 {
     PlayerActor.ChoiceDodge();
@@ -106,6 +106,8 @@ void BattleManager::ExecuteTurn()
         ActionType StaminaActionPlayer = PlayerActor.GetChoiceAction();
         AttackKind StaminaKindPlayer = PlayerActor.GetChoiceKind();
         StaminaValid(PlayerActor, StaminaActionPlayer, StaminaKindPlayer);
+
+        // 강등/변경이 발생했다면 선택을 실제로 덮어쓰기
         if (StaminaActionPlayer != PlayerActor.GetChoiceAction() || StaminaKindPlayer != PlayerActor.GetChoiceKind())
         {
             auto Direction = PlayerActor.GetChoiceDirection();
@@ -123,6 +125,7 @@ void BattleManager::ExecuteTurn()
             }
         }
     }
+
     // 4) ST 검증/강등 (적)
     {
         ActionType StaminaActionEnemy = EnemyActor->GetChoiceAction();
@@ -145,10 +148,11 @@ void BattleManager::ExecuteTurn()
             }
         }
     }
-    // 5) 판정
+    // 5) 동시 판정
     Resolve();
 }
 
+// 직전 턴 로그 출력
 void BattleManager::PrintStatus() const
 {
     printf("─────────────────[Knight’s Duel]────────────────────────\n");
@@ -165,6 +169,11 @@ void BattleManager::PrintStatus() const
     {
         std::printf("적 없음\n");
     }
+
+    std::printf("────────────────────────────────────────────────\n");
+    std::printf("플레이어 : %s\n", PlayerActor.GetName().c_str());
+    PrintBar("HP", PlayerActor.GetHP(), PlayerActor.GetMaxHP(), BarWidth);
+    PrintBar("ST", PlayerActor.GetST(), PlayerActor.GetMaxST(), BarWidth);
 
     printf("────────────────────────────────────────────────────────\n");
     printf("                    [ VS ]\n");
@@ -199,7 +208,7 @@ void BattleManager::PrintStatus() const
     printf("─────────────────────────────────────────────────────────────\n");
 }
 
-// 내부 로직
+// 동시 턴제 판정
 void BattleManager::Resolve()
 {
     // 현재 선택 가져오기
@@ -211,7 +220,7 @@ void BattleManager::Resolve()
     AttackKind      EnemyChoiceKind = EnemyActor->GetChoiceKind();
     CombatDirection EnemyChoiceDirection = EnemyActor->GetChoiceDirection();
 
-    // [적행동] 로그
+    // [적행동] 문자열 로그 기록
     {
         const char* ActionStr = "";
 
@@ -262,10 +271,10 @@ void BattleManager::Resolve()
     }
 
     // 판정 처리
-    // 공격 ↔ 공격 : 무기막기
+    // 공격 ↔ 공격 : 무기막기 추가로 ST -10 소모
     if (PlayerChoiceAction == ActionType::Attack && EnemyChoiceAction == ActionType::Attack)
     {
-        // ST 소비: 각자 자신의 공격 코스트 + 무기막기 추가 -10
+        // 플레이어 소모
         if (PlayerChoiceKind == AttackKind::Strong) 
         {
             PlayerActor.ConsumeST(StrongCostST); 
@@ -274,9 +283,9 @@ void BattleManager::Resolve()
         {
             PlayerActor.ConsumeST(NormalCostST); 
         }
-
         PlayerActor.ConsumeST(ClashExtraCostST);
 
+        // 적 소모
         if (EnemyChoiceKind == AttackKind::Strong) 
         { 
             EnemyActor->ConsumeST(StrongCostST); 
@@ -285,7 +294,6 @@ void BattleManager::Resolve()
         { 
             EnemyActor->ConsumeST(NormalCostST); 
         }
-
         EnemyActor->ConsumeST(ClashExtraCostST);
 
         Log.Judge = "공격 vs 공격(무기막기) → 피해: 0, 스태미나: -10";
@@ -322,7 +330,7 @@ void BattleManager::Resolve()
             {
                 EnemyActor->TakeDamage(Damage);
             }
-            Log.Judge = "공격 vs 가드(불일치) → 100% 피해";
+            Log.Judge  = "공격 vs 가드(불일치) → 100% 피해";
             Log.Damage = "플레이어→적: " + std::to_string(Damage);
 
             // 디버프 롤
@@ -474,6 +482,7 @@ void BattleManager::Resolve()
     }
 }
 
+// 데미지 계산
 int BattleManager::DamageCompute(const Actor& InAttacker, const Actor& InDefender, AttackKind InKind) const
 {
     int Atk = InAttacker.GetATK();
@@ -492,11 +501,13 @@ int BattleManager::DamageCompute(const Actor& InAttacker, const Actor& InDefende
     return std::max(0, Raw);
 }
 
+// 디버프 롤 (일반공격 디버프 30%, 강한일격 디버프 100%)
 Debuff BattleManager::DebuffRoll(CombatDirection InDirection, AttackKind InKind) const
 {
-    Debuff DebuffResult{};
-    bool trigger = (InKind == AttackKind::Strong);
+    Debuff DebuffResult{};   // 기본값(없음)
+    bool trigger = (InKind == AttackKind::Strong);  // 강공은 무조건 발생(100%)
 
+    // 일반공격이면 30% 확률 체크
     if (!trigger)
     {
         int Roll = RandRange();
@@ -507,6 +518,7 @@ Debuff BattleManager::DebuffRoll(CombatDirection InDirection, AttackKind InKind)
         return DebuffResult;
     }
 
+    // 방향(상단/중단/하단)별 디버프 
     switch (InDirection)
     {
     case CombatDirection::High: // 경직
@@ -529,11 +541,13 @@ Debuff BattleManager::DebuffRoll(CombatDirection InDirection, AttackKind InKind)
     return DebuffResult;
 }
 
+// 방향 일치 여부 (패링 조건)
 bool BattleManager::DirectionsMatch(CombatDirection PlayerDirection, CombatDirection EnemyDirection) const
 {
     return PlayerDirection == EnemyDirection;
 }
 
+// ST 검증/강등 (강공 -> 일반 -> 가드, 회피 -> 가드)
 void BattleManager::StaminaValid(Actor& InActor, ActionType& OutAction, AttackKind& OutKind) const
 {
     if (OutAction == ActionType::Attack)
@@ -569,9 +583,10 @@ void BattleManager::StaminaValid(Actor& InActor, ActionType& OutAction, AttackKi
         }
         return;
     }
-    // 가드 비용 없음
+    // 가드 ST 비용 없음
 }
 
+// 패링 즉시반격 (가드 성공 시 즉시 '일반공격' 1회 적용, 반격은 ST 소모 없음, 반격도 디버프 롤 적용)
 void BattleManager::ParryCounter(Actor& InGuarder, Actor& InAttacker, CombatDirection InGuardDirection)
 {
     // 즉시반격 (일반공격 ST 소모 없음)
@@ -596,7 +611,7 @@ void BattleManager::ParryCounter(Actor& InGuarder, Actor& InAttacker, CombatDire
 // 성향별 전조 대사 한 줄 골라서 반환
 const std::string& BattleManager::PickTelegraphLine(Stance InStance) const
 {
-    // 전조(텔레그래프) 대사 모음 (헤더 다중 포함 안전: inline)
+    // 전조(텔레그래프) 대사 모음 
     static const std::vector<std::string> AttackLines =
     {
         "손이 칼자루를 향해 서서히 움직인다",

@@ -5,6 +5,7 @@
 #include <cstdlib>
 
 // 게임 진행 담당
+// BattleManager를 사용해 전투 수행
 class KnightDuelManager
 {
     static inline int RandRange(int min, int max)
@@ -19,7 +20,7 @@ public:
     {
 
     }   
-    void RunGame();    // 게임 실행
+    void RunGame();      // 게임 실행
 
 private:
     void PlayerTurn(BattleManager& BM);   // 플레이어 입력 -> 행동 계획

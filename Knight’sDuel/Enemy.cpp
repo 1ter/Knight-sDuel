@@ -53,7 +53,7 @@ void Enemy::TelegraphDistribution(Stance InStance, int& OutNormal, int& OutStron
     }
 }
 
-// 퍼센트 분포로 (행동/공격종류) 결정
+// 확률 분포로 (행동/공격종류) 결정
 ActionType Enemy::PickAction(int InNormalPct, int InStrongPct, int InGuardPct, AttackKind& OutKind) const
 {
     int ActionRoll = RandRange();       // 0~99
@@ -86,7 +86,7 @@ CombatDirection Enemy::PickDirection() const
     }
 }
 
-//ST 부족 시 자동 강등(강공->일반->가드), 가드는 비용 없음
+// ST 부족 시 자동 강등(강공->일반->가드), 가드는 비용 없음
 void Enemy::CheckStamina(ActionType& OutAct, AttackKind& OutKind, int InST) const
 {
     if (OutAct == ActionType::Attack)
@@ -126,7 +126,7 @@ void Enemy::CheckStamina(ActionType& OutAct, AttackKind& OutKind, int InST) cons
     }
 }
 
-// 적 (성향/전조/분포) 행동 선택 
+// 적 턴 (성향/전조/분포) 행동 선택 
 void Enemy::TakeTurn()
 {
     // 기본 선택 초기화 ClearChoice()
@@ -135,26 +135,30 @@ void Enemy::TakeTurn()
     int StrongPct = 0;
     int GuardPct = 0;
 
-    // 전조 발생
+    // 1) 전조 발생
     IsTelegraphTurn = false;           //이전 턴 값 초기화
     bool Telegraph = TelegraphRoll();
     IsTelegraphTurn = Telegraph;       // 전조 발생 여부 저장
 
-    if (Telegraph) // 전조 분포(명시값) 적용 , 전조 대사
+    // 2) 전조 분포(명시값) 적용 , 전조 대사
+    if (Telegraph) 
     {
         TelegraphDistribution(stance, NormalPct, StrongPct, GuardPct);
     }
-    else           // 기본 분포
+    else          
     {
         BaseDistribution(stance, NormalPct, StrongPct, GuardPct); 
     }
 
+    // 3) 행동 선택
     AttackKind SelectedKind{};                              // 공격 종류 담을 변수 (PickAction이 값을 채움)
     ActionType SelectedAction = PickAction(NormalPct, StrongPct, GuardPct, SelectedKind); // (공격/가드) 결정
     CombatDirection SelectedDirection = PickDirection();   // 방향 선택 (공격/가드)
-    CheckStamina(SelectedAction, SelectedKind, ST);        // 스태미너 검사 및 자동 강등
 
-    // 최종 선택 적용
+    // 4) 스태미너 검사 및 자동 강등
+    CheckStamina(SelectedAction, SelectedKind, ST);       
+
+    // 5) 최종 choice 적용
     choice.Action = SelectedAction;              // 공격/가드/회피
     choice.Direction = SelectedDirection;        // 상/중/하
 

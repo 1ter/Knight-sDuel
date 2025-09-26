@@ -3,13 +3,13 @@
 #include <cstdlib>
 #include <ctime>
 
-
+// 난수
 static inline int RandRange(int min, int max)
 {
     return min + (std::rand() % (max - min + 1)); 
 }
 
-// 플레이어 입력 
+// 플레이어 턴 입력 처리
 void KnightDuelManager::PlayerTurn(BattleManager& InBM)
 {
     int InputAction = 0;
@@ -64,6 +64,7 @@ void KnightDuelManager::PrintResult(bool IsWin)
 // 게임 실행 (3라운드, 각 라운드 클리어 시 회복/초기화)
 void KnightDuelManager::RunGame()
 {
+    // 라운드별 기사 이름
     static const char* Names[3] = 
     {
         "폭풍의 기사 드레이크",
@@ -73,12 +74,13 @@ void KnightDuelManager::RunGame()
 
     for (int Round = 0; Round < 3; Round++)
     {
-        // 성향 랜덤
+        // 1) 성향 랜덤 (공격형/방어형/균형형)
         Stance stance = static_cast<Stance>(rand() % 3);
 
-        // 스탯 랜덤 (HP 100, ST 100, ATK 17~20, DEF 7~10)
+        // 2) 스탯 랜덤 (HP 100, ST 100, ATK 17~20, DEF 7~10)
         Enemy enemy(Names[Round], 100, 100, RandRange(17, 20), RandRange(7, 10), stance);
 
+        // 3) 적 성향 텍스트
         const char* StanceChar = nullptr;
         switch (stance)
         {
@@ -94,35 +96,39 @@ void KnightDuelManager::RunGame()
             break;
         }
      
-
-        printf("========================================\n");
-        printf("\n===== 라운드 %d / 3: %s (성향: %s) =====\n",
-            Round + 1, Names[Round], StanceChar);
-        printf("플레이어 ATK:%d  DEF:%d\n", MainPlayer.GetATK(), MainPlayer.GetDEF());
-        printf("적       ATK:%d  DEF:%d\n", enemy.GetATK(), enemy.GetDEF());
-        printf("========================================\n");
+        // 4) 라운드 시작 안내 출력
+        printf("──────────────────────────────────── [라운드 %d / 3]", Round + 1);
+        printf("\n%s (성향: %s)   \n",
+                        Names[Round], StanceChar);
+        printf("ATK: %d  DEF: %d \n", enemy.GetATK(), enemy.GetDEF());
+        printf("==================================================\n");
+        printf("플레이어 \n");
+        printf("ATK: %d  DEF: %d \n", MainPlayer.GetATK(), MainPlayer.GetDEF());
+        printf("─────────────────────────────────────────────────\n");
         printf("\n\n");
 
+        // 5) 전투 매니저 생성
         BattleManager battlemanager(MainPlayer);
         battlemanager.SetEnemy(enemy);
 
-        // 전투 루프
+        // 6) 전투 루프
         while (!battlemanager.IsBattleEnd())
         {
-            battlemanager.StartTurn();
+            battlemanager.StartTurn();     // 턴 시작 (ST회복, 디버프 틱 등)
             PlayerTurn(battlemanager);     // 플레이어 입력
-            battlemanager.ExecuteTurn();
-            battlemanager.PrintStatus();
+            battlemanager.ExecuteTurn();   // 적 행동 + 동시 판정
+            battlemanager.PrintStatus();   // 로그 출력
         }
 
+        // 7) 결과 판정
         bool IsWin = !MainPlayer.IsDead();
         PrintResult(IsWin);
         if (!IsWin)
         {
-            return;
+            return;  // 패배 시 게임 종료
         }
 
-        // 2라운드까지 회복/초기화
+        // 8) 라운드 클리어 보상
         if (Round < 2) 
         {
             int RecoveryHP = RandRange(50, 100);
@@ -131,6 +137,6 @@ void KnightDuelManager::RunGame()
             std::printf("라운드 회복: HP +%d, ST +%d (디버프 초기화)\n", RecoveryHP, RecoveryST);
         }
     }
-
+    // 9) 최종 라운드 승리
     std::printf("\n모든 기사를 처치! 당신은 챔피언입니다!\n");
 }
