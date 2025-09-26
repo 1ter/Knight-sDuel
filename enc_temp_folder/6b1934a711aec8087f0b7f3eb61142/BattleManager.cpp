@@ -151,8 +151,8 @@ void BattleManager::ExecuteTurn()
 
 void BattleManager::PrintStatus() const
 {
-    printf("─────────────────[Knight’s Duel]────────────────────────\n");
-    printf("적 : %s [성향: %s]\n",
+    std::printf("─────────────────[Knight’s Duel]────────────────────────\n");
+    std::printf("적 : %s [성향: %s]\n",
         EnemyActor ? EnemyActor->GetName().c_str() : "(없음)",
         EnemyActor ? ToStance(EnemyActor->GetStance()) : "-");
 
@@ -166,9 +166,9 @@ void BattleManager::PrintStatus() const
         std::printf("적 없음\n");
     }
 
-    printf("────────────────────────────────────────────────────────\n");
-    printf("                    [ VS ]\n");
-    printf("────────────────────────────────────────────────────────\n");
+    std::printf("────────────────────────────────────────────────────────\n");
+    std::printf("                    [ VS ]\n");
+    std::printf("────────────────────────────────────────────────────────\n");
 
     if (!Log.Telegraph.empty())
     {

@@ -1,157 +1,30 @@
 ﻿#pragma once
-
-/*
-텍스트 RPG 또는 C++콘솔을 활용한 게임을 제작하세요,
-
-- 제출 경로 : 강의 디스코드 (cpp-개인프로젝트 게시판)
-- 제출 파일 : Git 리포지토리 링크
-- 제출 기한 : 2025. 09. 26 PM 6:00까지
-
-필수 지시사항
-1. Player 설계 및 구현
-2. GameManager 설계 및 구현
-3. 기타 클래스 설계 및 구현
-4. 프로젝트 설명용 문서 작성
-
-1대1 동시 턴제 게임
-전투 한번으로 게임 종료
-디버프 시스템
-
-클래스 설계
-플레이어
-적(플레이어 상속, 공격처리만 추가)
-게임매니저
-
-#include <Windows.h> 필요
-Sleep(1000); // 1초 (1000)
-Sleep(100);  // 0.1초 멈추기
-
-    int AttackPower = 17 + rand() % 4;   // 17~20
-    int DefensePower;
-    if (AttackPower >= 20) {
-        DefensePower = 7 + rand() % 2;   // 7~8
-    } else if (AttackPower >= 18) {
-        DefensePower = 9 + rand() % 2;   // 9~10
-    } else {
-        DefensePower = 10;               // 보정
-    }
-*/
-/*
-─────────────────[Knight’s Duel]────[라운드 2 / 3]
-적 : 강철의 기사 드레이크[성향:방어형]
-HP 132 / 140[██████████▒▒▒▒▒▒▒▒]
-ST  85 / 100[█████████▒▒▒▒▒▒▒▒▒]
-디버프 : ⛨DEF↓(2)
-────────────────────────────────────────────────
-                    [ VS ]
-────────────────────────────────────────────────
-[전조] 칼집에서 검을 뽑는 소리가 들립니다…
-[적행동] 가드(중단)  ← 페이크!실제는 ‘일반(중단)’
-[판정] 공격 vs 가드(불일치) → 100 % 피해
-[효과] 일반 - 중단: 출혈(🩸 - 5 / 턴, 2턴) 적용
-[피해] ATK 18 - DEF 20 → 0
-[추가효과] 출혈 발동 → HP -5 (2턴)
-────────────────────────────────────────────────
-*/
-
-/*
-검과 방패로 맞붙어 끝까지 싸우는 중세 기사 1:1 동시 턴제 게임
-- 전투 방식: 동시 선택 전투(We-Go) — 플레이어와 적이 동시에 선택하고 동시에 공개
-
-Actor:
-  - HP: 100
-  - ST: 100
-    - 턴 시작 : ST +5
-    - 소모    : 일반공격 -5 / 강한공격 -25 / 회피 -30 / 무기막기 추가 -10 // 가드 -0
-    - ST 부족 : 자연스럽게 가드만 할수 밖에 없음
-
-  - 능력치(전투 시작 시 랜덤):
-    - ATK: 17 ~ 20
-    - DEF: 7 ~ 10
-
-적:  
-  - 성향: 랜덤 생성
-       공격형: 일반 60%, 강공 20%, 가드 20%
-       방어형: 일반 20%, 강공 20%, 가드 60%
-       균형형: 일반 40%, 강공 20%, 가드 40%
-    전조(30%): 대사를 통한 공격확률 증가 (칼집에서 검을 뽑는 소리가 들립니다.) 
-       공격형: 일반 70%, 강공 20%, 가드 10%
-       방어형: 일반 30%, 강공 20%, 가드 50%
-       균형형: 일반 50%, 강공 20%, 가드 30%
-라운드:  3라운드  기사 한명 잡을때마다 체럭회복(50~100)
-               기사는 능럭치 랜덤 그대로 
-               라운드마다 디버프 초기화
-               모두 처치하면 챔피언 등극
- 
-행동:
-  - 공격(Attack): 상단(내려치기), 중단(찌르기), 하단(쓸어베기), 강공(상/중/하)
-  - 가드(Guard): 상단/중단/하단
-  - 회피(Dodge)
-
-판정(동시 공개):
-  - 공격 vs 공격: 무기막기 
-        * HP 피해 없음, 
-        * ST = 일반공격 -5 + 무기막기 -10
-               일반 vs 일반 = -15
-               강공 vs 강공 = -35
-  - 공격 vs 가드:
-      * 방향 일치   -> 패링 성공:  피해 0[넉백] 효과, 가드한 쪽 '즉시 반격' (일반공격 1회, ST 소모 0, 가드 불가)
-      * 방향 불일치 -> 100% 피해
-  - 공격 vs 회피: 피해 0, 회피자 ST -30
-  - 가드 vs 가드: 서로 피해 없음, ST +5 자연회복만
-  - 회피 vs 회피: 서로 피해 없음, ST -30씩 감소
-
-
-디버프(스택 불가, 재적용 시 '더 강함/더 긴것'으로 갱신): 방어력에 영향 안줌
-  - 일반공격 (발동 30%)
-    * 상단(내려치기) [경직]  → DEF -3 (2턴)
-    * 중단(찌르기)   [출혈]  → HP -5/턴 (2턴)
-    * 하단(쓸어베기) [약화]  → ST -5/턴 (2턴)
-  - 강한공격 (발동 100%, 효과 2배)
-    * 상단(강타)    [경직]  → DEF -5 (2턴)
-    * 중단(관통)    [출혈]  → HP -8/턴 (3턴) 
-    * 하단(절단)    [약화]  → ST -10/턴 (2턴)
-
- 
-턴 처리 순서:
-  1) 디버프 Tick 적용 및 잔여 턴 감소
-  2) ST +5 자연회복 (최대 100)
-  3) 행동선택 & 스테미너 검증 (추가 및 부족한지 아닌지)
-  4) 판정 수행
-
-출력: 
-   1) 이름, HP, ST, 성향, ATK, DF, 디버프 이름및 아이콘(DEF↓ (2))
-
-   피해 최소 보정
-*/
-
-#pragma once
-#include "BattleManager.h"
+#include "Player.h"
 #include "Enemy.h"
-#include <string>
+#include "BattleManager.h"
+#include <cstdlib>
 
-class GameManager
+// 게임 진행 담당
+class KnightDuelManager
 {
-public:
-    explicit GameManager(Player& InPlayer)
-        : PlayerActor(InPlayer), Battle(InPlayer) {
+    static inline int RandRange(int min, int max)
+    {
+        return min + (rand() % (max - min + 1));
+
     }
+ 
+public:
+    KnightDuelManager()   // 플레이어 초기화 (HP,ST,ATK,DEF)
+        : MainPlayer("플레이어", 100, 100,RandRange(17, 20), RandRange(7, 10))
+    {
 
-    ~GameManager() { DestroyEnemy(); }
-
-    void Reset();               // 적 정리
-    bool SpawnBoss();           // 알드릭 1회 생성 (이미 있으면 false)
-    BattleManager& GetBattle() { return Battle; }
-    Enemy* GetEnemy() const { return EnemyActor; }
-
-private:
-    void   DestroyEnemy();
-    Enemy* CreateAldric();      // 알드릭 생성
-    int    RandRange(int min, int max) const;
-    Stance RandomStance() const;
+    }   
+    void RunGame();    // 게임 실행
 
 private:
-    Player& PlayerActor;
-    BattleManager Battle;
-    Enemy* EnemyActor = nullptr;
+    void PlayerTurn(BattleManager& BM);   // 플레이어 입력 -> 행동 계획
+    void PrintResult(bool bWin);          // 전투 결과 출력
+
+private:
+    Player MainPlayer;  // 플레이어 캐릭터
 };

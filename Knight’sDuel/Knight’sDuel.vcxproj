@@ -103,6 +103,8 @@
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
+      <AdditionalOptions>
+      </AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -128,12 +130,14 @@
     <ClInclude Include="BattleManager.h" />
     <ClInclude Include="Enemy.h" />
     <ClInclude Include="KnightDuelManager.h" />
+    <ClInclude Include="log.h" />
     <ClInclude Include="Player.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Actor.cpp" />
     <ClCompile Include="BattleManager.cpp" />
     <ClCompile Include="Enemy.cpp" />
+    <ClCompile Include="KnightDuelGameRun.cpp" />
     <ClCompile Include="KnightDuelManager.cpp" />
     <ClCompile Include="Player.cpp" />
   </ItemGroup>

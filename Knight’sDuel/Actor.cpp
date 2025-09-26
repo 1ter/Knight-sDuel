@@ -1,5 +1,6 @@
 #include "Actor.h"
 #include <algorithm>
+#include <string>
 
 // 리소스 관리
 void Actor::MaxVital()             // HP, ST 최대/최소 제한
@@ -177,3 +178,32 @@ void Actor::TickDebuff()            // 턴마다 디버프 처리
 
     MaxVital();  
 }
+
+std::string Debuff::ToString() const
+{
+        std::string DirectionStr;
+        switch (Direction)
+        {
+        case CombatDirection::High: 
+            DirectionStr = "상단(내려치기)"; break;
+        case CombatDirection::Mid:  
+            DirectionStr = "중단(찌르기)";   break;
+        case CombatDirection::Low:  
+            DirectionStr = "하단(쓸어베기)"; break;
+        default: 
+            ;
+        }
+
+        switch (Type)
+        {
+        case DebuffType::Stagger:
+            return DirectionStr + " → 경직 DEF -" + std::to_string(Value) + " (" + std::to_string(Duration) + "턴)";
+        case DebuffType::Bleed:
+            return DirectionStr + " → 출혈 HP -" + std::to_string(Value) + "/턴 (" + std::to_string(Duration) + "턴)";
+        case DebuffType::Weakness:
+            return DirectionStr + " → 약화 ST -" + std::to_string(Value) + "/턴 (" + std::to_string(Duration) + "턴)";
+        default:
+            return "";   // 빈 문자열
+        }
+}
+

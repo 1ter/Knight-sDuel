@@ -1,19 +1,5 @@
-/*
-  - 성향: 랜덤 생성
-	   공격형: 일반 60%, 강공 20%, 가드 20% 
-	   방어형: 일반 20%, 강공 20%, 가드 60% 
-	   균형형: 일반 40%, 강공 20%, 가드 40% 
-    전조(30%): 대사를 통한 공격확률 증가
-       공격형: 일반 70%, 강공 20%, 가드 10%
-       방어형: 일반 30%, 강공 20%, 가드 50%
-       균형형: 일반 50%, 강공 20%, 가드 30%
-
-   - 전조(텔레그래프): 대화를 통한 심리전 강화
-	   예시) [칼집에서 검을 뽑는 소리가 들립니다.]
-*/
 #include "Enemy.h"
 #include <cstdlib>
-#include <cstdio>
 
 // 확률 
 static inline int RandRange() // 0~99
@@ -29,21 +15,6 @@ static inline int Rand3()     // 방향 (High/Mid/Low)
 bool Enemy::TelegraphRoll() const
 {
     return RandRange() < TelegraphPercent;  // 30%
-}
-
-// 성향별 전조 대사 한 줄 골라서 반환
-const std::string& Enemy::TelegraphLinePick(Stance InStance) const
-{
-    switch (InStance)
-    {
-    case Stance::Aggressive:
-        return AttackLines[RandRange() % AttackLines.size()];
-    case Stance::Defensive:
-        return DefensiveLines[RandRange() % DefensiveLines.size()];
-    case Stance::Balanced:
-    default:
-        return BalancedLines[RandRange() % BalancedLines.size()];
-    }
 }
 
 // 성향 기본 분포(전조 없음)
@@ -164,18 +135,18 @@ void Enemy::TakeTurn()
     int StrongPct = 0;
     int GuardPct = 0;
 
-    // 전조 굴림
+    // 전조 발생
+    IsTelegraphTurn = false;           //이전 턴 값 초기화
     bool Telegraph = TelegraphRoll();
+    IsTelegraphTurn = Telegraph;       // 전조 발생 여부 저장
 
     if (Telegraph) // 전조 분포(명시값) 적용 , 전조 대사
     {
         TelegraphDistribution(stance, NormalPct, StrongPct, GuardPct);
-        const std::string& line = TelegraphLinePick(stance);
-        printf("%s\n", line.c_str());
     }
     else           // 기본 분포
     {
-         BaseDistribution(stance, NormalPct, StrongPct, GuardPct); 
+        BaseDistribution(stance, NormalPct, StrongPct, GuardPct); 
     }
 
     AttackKind SelectedKind{};                              // 공격 종류 담을 변수 (PickAction이 값을 채움)
@@ -187,7 +158,7 @@ void Enemy::TakeTurn()
     choice.Action = SelectedAction;              // 공격/가드/회피
     choice.Direction = SelectedDirection;        // 상/중/하
 
-    if (SelectedAction == ActionType::Attack)   // 공격일 때만 (일반/강공) 적용 
+    if (SelectedAction == ActionType::Attack)    // 공격일 때만 (일반/강공) 적용 
     {
         choice.Kind = SelectedKind;         
     }

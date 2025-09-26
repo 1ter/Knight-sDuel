@@ -38,9 +38,11 @@ enum class DebuffType
 struct Debuff
 {
     DebuffType Type = DebuffType::None;
+    CombatDirection Direction = CombatDirection::Mid; 
     int Value = 0;      // 효과량
     int Duration = 0;   // 남은 턴 수
 
+    std::string ToString() const;   
 };
 
 class Actor

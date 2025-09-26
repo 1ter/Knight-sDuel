@@ -1,4 +1,4 @@
-ï»¿#include "KnightDuelManager.h"   
+#include "KnightDuelManager.h"   
 #include <iostream>
 #include <cstdlib>
 #include <ctime>
@@ -9,28 +9,28 @@ static inline int RandRange(int min, int max)
     return min + (std::rand() % (max - min + 1)); 
 }
 
-// í”Œë ˆì´ì–´ ì…ë ¥ 
+// ÇÃ·¹ÀÌ¾î ÀÔ·Â 
 void KnightDuelManager::PlayerTurn(BattleManager& InBM)
 {
     int InputAction = 0;
-    std::printf("í–‰ë™ ì„ íƒ: 1) ê³µê²©  2) ê°€ë“œ  3) íšŒí”¼\n> ");
+    std::printf("Çàµ¿ ¼±ÅÃ: 1) °ø°İ  2) °¡µå  3) È¸ÇÇ\n> ");
     std::cin >> InputAction;
 
     if (InputAction == 1) 
     {
         int InputAttack;
-        std::printf("ê³µê²© ì¢…ë¥˜: 1) ì¼ë°˜ ê³µê²©  2) ê°•í•œ ê³µê²©\n> ");
+        std::printf("°ø°İ Á¾·ù: 1) ÀÏ¹İ °ø°İ  2) °­ÇÑ °ø°İ\n> ");
         std::cin >> InputAttack;
 
         int InputDirection = 0;
         if (InputAttack == 1) {
-            std::printf("ë°©í–¥ ì„ íƒ: 1) ë‚´ë ¤ì¹˜ê¸°(ìƒë‹¨) 2) ì°Œë¥´ê¸°(ì¤‘ë‹¨) 3) ì“¸ì–´ë² ê¸°(í•˜ë‹¨)\n> ");
+            std::printf("¹æÇâ ¼±ÅÃ: 1) ³»·ÁÄ¡±â(»ó´Ü) 2) Âî¸£±â(Áß´Ü) 3) ¾µ¾îº£±â(ÇÏ´Ü)\n> ");
             std::cin >> InputDirection;
             InBM.PlanPlayerAttack(static_cast<CombatDirection>(InputDirection - 1), AttackKind::Normal);
         }
         else 
         {
-            std::printf("ë°©í–¥ ì„ íƒ: 1) ê°•íƒ€(ìƒë‹¨)  2) ê´€í†µ(ì¤‘ë‹¨)  3) ì ˆë‹¨(í•˜ë‹¨)\n> ");
+            std::printf("¹æÇâ ¼±ÅÃ: 1) °­Å¸(»ó´Ü)  2) °üÅë(Áß´Ü)  3) Àı´Ü(ÇÏ´Ü)\n> ");
             std::cin >> InputDirection;
             InBM.PlanPlayerAttack(static_cast<CombatDirection>(InputDirection - 1), AttackKind::Strong);
         }
@@ -38,7 +38,7 @@ void KnightDuelManager::PlayerTurn(BattleManager& InBM)
     else if (InputAction == 2) 
     {
         int InputDirection = 0;
-        std::printf("ê°€ë“œ ë°©í–¥: 1) ìƒë‹¨ë§‰ê¸°  2) ì¤‘ë‹¨ë§‰ê¸°  3) í•˜ë‹¨ë§‰ê¸°\n> ");
+        std::printf("°¡µå ¹æÇâ: 1) »ó´Ü¸·±â  2) Áß´Ü¸·±â  3) ÇÏ´Ü¸·±â\n> ");
         std::cin >> InputDirection;
         InBM.PlanPlayerGuard(static_cast<CombatDirection>(InputDirection - 1));
     }
@@ -48,69 +48,67 @@ void KnightDuelManager::PlayerTurn(BattleManager& InBM)
     }
 }
 
-// ì „íˆ¬ ê²°ê³¼ ì¶œë ¥
+// ÀüÅõ °á°ú Ãâ·Â
 void KnightDuelManager::PrintResult(bool IsWin)
 {
     if (IsWin)
     {
-        std::printf("\n ìŠ¹ë¦¬! ë‹¤ìŒ ë¼ìš´ë“œë¡œ ì§„ì…í•©ë‹ˆë‹¤.\n");
+        std::printf("\n ½Â¸®! ´ÙÀ½ ¶ó¿îµå·Î ÁøÀÔÇÕ´Ï´Ù.\n");
     }
     else
     {
-        std::printf("\n íŒ¨ë°°... ê²Œì„ ì¢…ë£Œ.\n");
+        std::printf("\n ÆĞ¹è... °ÔÀÓ Á¾·á.\n");
     }
 }
 
-// ê²Œì„ ì‹¤í–‰ (3ë¼ìš´ë“œ, ê° ë¼ìš´ë“œ í´ë¦¬ì–´ ì‹œ íšŒë³µ/ì´ˆê¸°í™”)
+// °ÔÀÓ ½ÇÇà (3¶ó¿îµå, °¢ ¶ó¿îµå Å¬¸®¾î ½Ã È¸º¹/ÃÊ±âÈ­)
 void KnightDuelManager::RunGame()
 {
     static const char* Names[3] = 
     {
-        "í­í’ì˜ ê¸°ì‚¬ ë“œë ˆì´í¬",
-        "í˜¼ëˆì˜ ê¸°ì‚¬ ë¡œì›°",
-        "ë¶ˆë©¸ì˜ ê¸°ì‚¬ ì•Œë“œë¦­"
+        "ÆøÇ³ÀÇ ±â»ç µå·¹ÀÌÅ©",
+        "È¥µ·ÀÇ ±â»ç ·ÎÀ£",
+        "ºÒ¸êÀÇ ±â»ç ¾Ëµå¸¯"
     };
 
     for (int Round = 0; Round < 3; Round++)
     {
-        // ì„±í–¥ ëœë¤
+        // ¼ºÇâ ·£´ı
         Stance stance = static_cast<Stance>(rand() % 3);
 
-        // ìŠ¤íƒ¯ ëœë¤ (HP 100, ST 100, ATK 17~20, DEF 7~10)
+        // ½ºÅÈ ·£´ı (HP 100, ST 100, ATK 17~20, DEF 7~10)
         Enemy enemy(Names[Round], 100, 100, RandRange(17, 20), RandRange(7, 10), stance);
 
         const char* StanceChar = nullptr;
         switch (stance)
         {
         case Stance::Aggressive:
-            StanceChar = "ê³µê²©í˜•";
+            StanceChar = "°ø°İÇü";
             break;
         case Stance::Defensive:
-            StanceChar = "ë°©ì–´í˜•";
+            StanceChar = "¹æ¾îÇü";
             break;
         case Stance::Balanced:
         default:
-            StanceChar = "ê· í˜•í˜•";
+            StanceChar = "±ÕÇüÇü";
             break;
         }
-     
-
-        printf("========================================\n");
-        printf("\n===== ë¼ìš´ë“œ %d / 3: %s (ì„±í–¥: %s) =====\n",
-            Round + 1, Names[Round], StanceChar);
-        printf("í”Œë ˆì´ì–´ ATK:%d  DEF:%d\n", MainPlayer.GetATK(), MainPlayer.GetDEF());
-        printf("ì        ATK:%d  DEF:%d\n", enemy.GetATK(), enemy.GetDEF());
-        printf("========================================\n");
+        printf("¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¶ó¿îµå %d / 3¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡\n");
+        printf("\n                 %s (¼ºÇâ: %s) \n", 
+                         Round + 1, Names[Round], StanceChar);
+        printf("ÇÃ·¹ÀÌ¾î ATK:%d  DEF:%d\n", MainPlayer.GetATK(), MainPlayer.GetDEF());
+        printf("Àû       ATK:%d  DEF:%d\n", enemy.GetATK(), enemy.GetDEF());
+        printf("¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡\n");
         printf("\n\n");
 
         BattleManager battlemanager(MainPlayer);
         battlemanager.SetEnemy(enemy);
 
-        // ì „íˆ¬ ë£¨í”„
+        // ÀüÅõ ·çÇÁ
         while (!battlemanager.IsBattleEnd())
         {
             battlemanager.StartTurn();
-            PlayerTurn(battlemanager);     // í”Œë ˆì´ì–´ ì…ë ¥
+            PlayerTurn(battlemanager);     // ÇÃ·¹ÀÌ¾î ÀÔ·Â
             battlemanager.ExecuteTurn();
             battlemanager.PrintStatus();
         }
@@ -122,15 +120,15 @@ void KnightDuelManager::RunGame()
             return;
         }
 
-        // 2ë¼ìš´ë“œê¹Œì§€ íšŒë³µ/ì´ˆê¸°í™”
+        // 2¶ó¿îµå±îÁö È¸º¹/ÃÊ±âÈ­
         if (Round < 2) 
         {
             int RecoveryHP = RandRange(50, 100);
             int RecoveryST = RandRange(50, 100);
-            MainPlayer.RoundResetPlayer(RecoveryHP, RecoveryST); // HP/ST íšŒë³µ, ë””ë²„í”„ ì´ˆê¸°í™”(ê²½ì§ ë³µêµ¬)
-            std::printf("ë¼ìš´ë“œ íšŒë³µ: HP +%d, ST +%d (ë””ë²„í”„ ì´ˆê¸°í™”)\n", RecoveryHP, RecoveryST);
+            MainPlayer.RoundResetPlayer(RecoveryHP, RecoveryST); // HP/ST È¸º¹, µğ¹öÇÁ ÃÊ±âÈ­(°æÁ÷ º¹±¸)
+            std::printf("¶ó¿îµå È¸º¹: HP +%d, ST +%d (µğ¹öÇÁ ÃÊ±âÈ­)\n", RecoveryHP, RecoveryST);
         }
     }
 
-    std::printf("\nëª¨ë“  ê¸°ì‚¬ë¥¼ ì²˜ì¹˜! ë‹¹ì‹ ì€ ì±”í”¼ì–¸ì…ë‹ˆë‹¤!\n");
+    std::printf("\n¸ğµç ±â»ç¸¦ Ã³Ä¡! ´ç½ÅÀº Ã¨ÇÇ¾ğÀÔ´Ï´Ù!\n");
 }

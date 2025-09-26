@@ -8,11 +8,11 @@ class BattleManager
 {
 public:
     // ST 소모
-    static constexpr int RegenST          = 5;   // 턴 시작 +5
-    static constexpr int NormalCostST     = 5;   // 일반공격
-    static constexpr int StrongCostST     = 25;  // 강한공격
-    static constexpr int DodgeCostST      = 30;  // 회피
-    static constexpr int ClashExtraCostST = 10;  // 무기막기 추가 소모
+    static constexpr int RegenST          = 5;   // 턴 시작   +5
+    static constexpr int NormalCostST     = 5;   // 일반공격  -5
+    static constexpr int StrongCostST     = 25;  // 강한공격 -25
+    static constexpr int DodgeCostST      = 30;  // 회피     -30
+    static constexpr int ClashExtraCostST = 10;  // 무기막기 -10 
 
     // 디버프 확률
     static constexpr int DebuffNormalPct = 30;   // 일반공격 30%
@@ -22,7 +22,7 @@ public:
     static constexpr int BarWidth = 16;
 
 public:
-    // 플레이어는 참조 보관
+    // 플레이어 참조
     BattleManager(Player& InPlayer)
         : PlayerActor(InPlayer)
     {
@@ -32,9 +32,9 @@ public:
 
     bool IsBattleEnd() const;                       // 진행 상태       
     void StartTurn();                               // 시작 턴 처리 순서
-    void PlanPlayerAttack(CombatDirection InDir, AttackKind InKind);    //플레이어: 공격 계획
-    void PlanPlayerGuard(CombatDirection InDir);                        // 플레이어: 가드 계획
-    void PlanPlayerDodge();                                             // 플레이어: 회피 계획
+    void PlanPlayerAttack(CombatDirection InDirection, AttackKind InKind);    //플레이어: 공격 계획
+    void PlanPlayerGuard(CombatDirection InDirection);                        // 플레이어: 가드 계획
+    void PlanPlayerDodge();                                                  // 플레이어: 회피 계획
     void ExecuteTurn();                             // 적 선택 -> ST 검증 -> 타깃 연결 -> 판정
 
     // 출력
@@ -45,14 +45,14 @@ public:
     Enemy& GetEnemy()   { return *EnemyActor; }     // 적 참조 반환 (SetEnemy)
 
 private:
-    // 판정 (동시 턴제)
-    void Resolve();                                 // 공/가/회피 조합 분기 및 처리
+    // 동시 턴제 판정 
+    void Resolve();     
 
     // 데미지 계산
     int DamageCompute(const Actor& InAttacker, const Actor& InDefender, AttackKind InKind) const;
 
     // 디버프 확률 (일반30%/강공100%)
-    Debuff DebuffRoll(CombatDirection InDir, AttackKind InKind) const;
+    Debuff DebuffRoll(CombatDirection InDirection, AttackKind InKind) const;
 
     // 방향(가드/공격) 상,중,하 일치 여부 확인
     bool DirectionsMatch(CombatDirection InL, CombatDirection InR) const;
@@ -62,6 +62,9 @@ private:
 
     // 패링 즉시반격 (일반공격 적용, ST 0 소모)
     void ParryCounter(Actor& InGuarder, Actor& InAttacker, CombatDirection InGuardDir);
+
+    // 전조 대사
+    const std::string& PickTelegraphLine(Stance InStance) const;
 
 private:
     // 직전 턴 출력 로그 (PrintStatus에서 사용)
@@ -77,5 +80,5 @@ private:
 
     Player& PlayerActor;          // 플레이어(참조)
     Enemy* EnemyActor = nullptr; // 적(포인터, 외부 소유)
-    TurnLog LastLog;              // 직전 턴 로그
+    TurnLog Log;              // 직전 턴 로그
 };
