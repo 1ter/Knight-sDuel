@@ -206,7 +206,7 @@ void BattleManager::PrintStatus() const
     printf("플레이어 : %s\n", PlayerActor.GetName().c_str());
     PrintBar("HP", PlayerActor.GetHP(), PlayerActor.GetMaxHP(), BarWidth);
     PrintBar("ST", PlayerActor.GetST(), PlayerActor.GetMaxST(), BarWidth);
-    PrintDebuffsLine(*EnemyActor);
+    PrintDebuffsLine(PlayerActor);
 
     printf("─────────────────────────────────────────────────\n");
     printf("                    [ VS ]\n");
