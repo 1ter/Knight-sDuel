@@ -37,7 +37,7 @@ public:
     void PlanPlayerGuard(CombatDirection InDirection);                        // 플레이어 가드 선택
     void PlanPlayerDodge();                                                   // 플레이어 회피 선택획
     void ExecuteTurn();                             // 적 선택 -> ST 검증 -> 타깃 연결 -> 판정
-    void PrintStatus() const;   // 로그 출력            
+    void PrintStatus() const;   // 로그 출력   
 
     // 접근자
     Player& GetPlayer() { return PlayerActor; }     // 플레이어 참조 반환
@@ -77,7 +77,11 @@ private:
         std::string Extra;       // [추가효과] 
     };
 
+    void PrintDebuffsLine(const Actor& InActor) const;
+
     Player& PlayerActor;          // 플레이어(참조)
     Enemy* EnemyActor = nullptr; // 적(포인터, 외부에서 할당)
     TurnLog Log;                 // 직전 턴 로그 결과
+
+
 };

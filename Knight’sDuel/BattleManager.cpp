@@ -194,6 +194,8 @@ void BattleManager::PrintStatus() const
     {
         PrintBar("HP", EnemyActor->GetHP(), EnemyActor->GetMaxHP(), BarWidth);
         PrintBar("ST", EnemyActor->GetST(), EnemyActor->GetMaxST(), BarWidth);
+        PrintDebuffsLine(*EnemyActor);
+
     }
     else
     {
@@ -204,6 +206,7 @@ void BattleManager::PrintStatus() const
     printf("플레이어 : %s\n", PlayerActor.GetName().c_str());
     PrintBar("HP", PlayerActor.GetHP(), PlayerActor.GetMaxHP(), BarWidth);
     PrintBar("ST", PlayerActor.GetST(), PlayerActor.GetMaxST(), BarWidth);
+    PrintDebuffsLine(*EnemyActor);
 
     printf("─────────────────────────────────────────────────\n");
     printf("                    [ VS ]\n");
@@ -233,6 +236,37 @@ void BattleManager::PrintStatus() const
         printf("[추가효과] %s\n", Log.Extra.c_str());
     }
     printf("─────────────────────────────────────────────────\n");
+}
+
+void BattleManager::PrintDebuffsLine(const Actor& InActor) const
+{
+    const auto& activeDebuffs = InActor.GetActiveDebuffs();
+    if (activeDebuffs.empty()) return;
+
+    printf("디버프 : ");
+    for (size_t i = 0; i < activeDebuffs.size(); ++i)
+    {
+        const Debuff& D = activeDebuffs[i];
+        switch (D.Type)
+        {
+        case DebuffType::Stagger:   // DEF↓
+            std::printf("⛨DEF↓(%d)", D.Duration);
+            break;
+        case DebuffType::Bleed:     // HP -X/턴
+            std::printf("🩸-%d/턴(%d)", D.Value, D.Duration);
+            break;
+        case DebuffType::Weakness:  // ST -X/턴
+            std::printf("⚡ST-%d/턴(%d)", D.Value, D.Duration);
+            break;
+        default:
+            break;
+        }
+        if (i + 1 < activeDebuffs.size())
+        {
+            printf(", ");
+        }
+    }
+    printf("\n");
 }
 
 // 동시 턴제 판정

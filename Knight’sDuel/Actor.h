@@ -100,6 +100,7 @@ public:
     int GetMaxST() const noexcept { return MaxST; }     // 최대 ST
     int GetATK() const { return ATK; }                  // 공격력
     int GetDEF() const { return DEF; }                  // 방어력
+    const std::vector<Debuff>& GetActiveDebuffs() const { return ActiveDebuff; }  // 디버프
     const std::string& GetName() const { return Name; } // 이름
 
     // 현재 턴 선택 Getter (행동/방향/강도/대상)
