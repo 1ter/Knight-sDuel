@@ -19,7 +19,7 @@ static void PrintBar(const char* Label, int Curr, int Max, int Width)
     if (Fill > Width) Fill = Width;
 
     std::printf("%-3s %4d / %-4d[", Label, Curr, Max);
-    for (int i = 0; i < Fill; ++i) std::printf("█");
+    for (int i = 0; i < Fill; ++i) std::printf("■");  //  ███
     for (int i = Fill; i < Width; ++i) std::printf("▒");
     std::printf("]\n");
 }
@@ -250,13 +250,13 @@ void BattleManager::PrintDebuffsLine(const Actor& InActor) const
         switch (D.Type)
         {
         case DebuffType::Stagger:   // DEF↓
-            std::printf("⛨DEF↓(%d)", D.Duration);
+            std::printf("[DEF↓](%d)", D.Duration);  // ⛨
             break;
         case DebuffType::Bleed:     // HP -X/턴
-            std::printf("🩸-%d/턴(%d)", D.Value, D.Duration);
+            std::printf("[출혈-%d/턴](%d)", D.Value, D.Duration); // 🩸
             break;
         case DebuffType::Weakness:  // ST -X/턴
-            std::printf("⚡ST-%d/턴(%d)", D.Value, D.Duration);
+            std::printf("[ST-%d/턴](%d)", D.Value, D.Duration);  //⚡
             break;
         default:
             break;
