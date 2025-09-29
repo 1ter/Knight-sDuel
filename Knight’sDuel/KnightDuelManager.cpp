@@ -97,14 +97,14 @@ void KnightDuelManager::RunGame()
         }
      
         // 4) 라운드 시작 안내 출력
-        printf("──────────────────────────────────── [라운드 %d / 3]", Round + 1);
+        printf("────────────────────────────────────────── [라운드 %d / 3]", Round + 1);
         printf("\n%s (성향: %s)   \n",
                         Names[Round], StanceChar);
         printf("ATK: %d  DEF: %d \n", enemy.GetATK(), enemy.GetDEF());
-        printf("==================================================\n");
+        printf("========================================================\n");
         printf("플레이어 \n");
         printf("ATK: %d  DEF: %d \n", MainPlayer.GetATK(), MainPlayer.GetDEF());
-        printf("─────────────────────────────────────────────────\n");
+        printf("───────────────────────────────────────────────────────\n");
         printf("\n\n");
 
         // 5) 전투 매니저 생성

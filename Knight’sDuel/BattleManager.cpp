@@ -185,7 +185,7 @@ void BattleManager::ExecuteTurn()
 // 직전 턴 로그 출력
 void BattleManager::PrintStatus() const
 {
-    printf("─────────────────[Knight’s Duel]────────────────\n");
+    printf("─────────────────[Knight’s Duel]──────────────────────\n");
     printf("적 : %s [성향: %s]\n",
         EnemyActor ? EnemyActor->GetName().c_str() : "(없음)",
         EnemyActor ? ToStance(EnemyActor->GetStance()) : "-");
@@ -202,15 +202,15 @@ void BattleManager::PrintStatus() const
         printf("적 없음\n");
     }
 
-    printf("─────────────────────────────────────────────────\n");
+    printf("───────────────────────────────────────────────────────\n");
     printf("플레이어 : %s\n", PlayerActor.GetName().c_str());
     PrintBar("HP", PlayerActor.GetHP(), PlayerActor.GetMaxHP(), BarWidth);
     PrintBar("ST", PlayerActor.GetST(), PlayerActor.GetMaxST(), BarWidth);
     PrintDebuffsLine(PlayerActor);
 
-    printf("─────────────────────────────────────────────────\n");
+    printf("───────────────────────────────────────────────────────\n");
     printf("                    [ VS ]\n");
-    printf("─────────────────────────────────────────────────\n");
+    printf("───────────────────────────────────────────────────────\n");
     if (!Log.Telegraph.empty())
     {
         printf("[전조] %s\n", Log.Telegraph.c_str());
@@ -235,7 +235,7 @@ void BattleManager::PrintStatus() const
     {
         printf("[추가효과] %s\n", Log.Extra.c_str());
     }
-    printf("─────────────────────────────────────────────────\n");
+    printf("───────────────────────────────────────────────────────\n");
 }
 
 void BattleManager::PrintDebuffsLine(const Actor& InActor) const
@@ -250,13 +250,13 @@ void BattleManager::PrintDebuffsLine(const Actor& InActor) const
         switch (D.Type)
         {
         case DebuffType::Stagger:   // DEF↓
-            std::printf("[DEF↓](%d)", D.Duration);  // ⛨
+            std::printf("[DEF↓]/%d턴", D.Duration);  // ⛨
             break;
         case DebuffType::Bleed:     // HP -X/턴
-            std::printf("[출혈-%d/턴](%d)", D.Value, D.Duration); // 🩸
+            std::printf("[출혈-%d]/%d턴]", D.Value, D.Duration); // 🩸
             break;
         case DebuffType::Weakness:  // ST -X/턴
-            std::printf("[ST-%d/턴](%d)", D.Value, D.Duration);  //⚡
+            std::printf("[ST-%d]/%턴", D.Value, D.Duration);  //⚡
             break;
         default:
             break;
